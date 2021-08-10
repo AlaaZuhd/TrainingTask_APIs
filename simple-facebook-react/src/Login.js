@@ -11,7 +11,7 @@ function Login(props) {
         currentPage: props.currentPage
     })
 
-    console.log(pageState_.currentPage)
+    // console.log(pageState_.currentPage)
 
     const emailChangeHandler = (event) => {
         event.preventDefault()
@@ -57,6 +57,7 @@ function Login(props) {
                 // console.log(data)
                 let user =  {isLoggedIn: true, userEmail: userInput.userEmail, userPassword: userInput.userPassword, token: data.token}
                 console.log(user.userEmail)
+                console.log("h")
                 props.onSubmitUser(user);
             })
             .catch(error => { // i have to display something on the screen instead of the console
@@ -66,8 +67,8 @@ function Login(props) {
             })
         }
 
-    let content = (pageState_.currentPage === "login") ?
-        (<div className="login-cbase-container">
+    return (
+        <div className="login-cbase-container">
             <img src={loginLogo} className="Login-logo" alt="logo" width="100px" height="100px"/>
             <form onSubmit={submitHandler}>
                 <div className="field-container">
@@ -83,12 +84,6 @@ function Login(props) {
                 </div>
             </form>
             <p>If you don't have an account Create one <a href="/logout">Create Account</a></p>
-        </div>) :
-        (<div></div>)
-
-    return (
-        <div>
-            {content}
         </div>
     )
 }
