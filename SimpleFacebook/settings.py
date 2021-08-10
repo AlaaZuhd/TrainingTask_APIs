@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'Posts',
     'Comments',
     'rest_framework.authtoken', # for token authentication
+    'corsheaders', # new
 
 ]
 
@@ -77,7 +78,13 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
+
+CORS_ORIGIN_ALLOW_ALL = True
+
 
 ROOT_URLCONF = 'SimpleFacebook.urls'
 

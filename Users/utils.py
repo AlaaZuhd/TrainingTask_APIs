@@ -40,6 +40,7 @@ class ObtainNewToken(ObtainAuthToken):
                 token = Token.objects.create(user=user)
                 token.save()
                 #is_expired, token = token_expire_handler(token)
+                print("hi")
             response_data = {'token': token.key, 'expires_in': str(expires_in(token))}
             return HttpResponse(json.dumps(response_data), content_type="application/json")
         return HttpResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
