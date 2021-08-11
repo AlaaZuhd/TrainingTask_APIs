@@ -51,10 +51,13 @@ function Register({history}) {
                                             birth_date: userInput.userBirthdate})
             };
             const response = await fetch('http://127.0.0.1:8000/users/', requestOptions)
-            if(response.status === 200 && response.ok){
-                const data = await response.json()
-                console.log(data)
+            if(response.status === 201 && response.ok){
                 console.log(response)
+                const data = await response.json()
+                if (window.confirm('Click OK to activate your account')) {
+                    window.open(data["activation link"], '_blank');
+                };
+                history.push("./login")
                 // localStorage.setItem('token', data.token)
                 // setState({loggedIn: true})
                 // redirerction = (state.loggedIn === "true" ? <Redirect to="/" /> : <Login/>)

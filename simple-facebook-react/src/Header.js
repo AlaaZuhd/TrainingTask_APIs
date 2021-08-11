@@ -9,14 +9,17 @@ import Login from "./Login";
 import Home from "./Home"
 import Logout from "./Logout"
 import Register from "./Register";
+import { useHistory } from "react-router-dom";
 
 
-function Header(props) {
+function Header({history}) {
 
+
+    ///////////// revist this
     let loginPageHandler = (event) => {
         // event.preventDefault()
         console.log("from header")
-        props.onRefClick("login")
+        // props.onRefClick("login")
     }
 
 
@@ -39,6 +42,10 @@ function Header(props) {
     )
     console.log(isLoggedIn.isLoggedIn)
 
+    const setAuthorizationState =  (isLoggedIn) => {
+        setPageState.isLoggedIn = isLoggedIn
+    }
+
     return (
         <Router>
             <header>
@@ -58,9 +65,9 @@ function Header(props) {
                     </nav>
                 </div>
             </header>
-            <Route exact path='/' component={Home}>
+            <Route exact path='/' component={ () => <Home authorization={pageState.isLoggedIn} />}  >
             </Route>
-            <Route exact path='/login' component={Login}>
+            <Route exact path='/login' component= {() => <Login setAuthorizationState={setAuthorizationState} history={history}/>}  >
             </Route>
             <Route exact path='/logout' component={Logout}>
             </Route>

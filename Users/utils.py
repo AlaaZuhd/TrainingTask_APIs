@@ -43,7 +43,9 @@ class ObtainNewToken(ObtainAuthToken):
                 print("hi")
             response_data = {'token': token.key, 'expires_in': str(expires_in(token))}
             return HttpResponse(json.dumps(response_data), content_type="application/json")
-        return HttpResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        print("what's happening")
+        error_response = {"message": "Invalid email or password"}
+        return HttpResponse(json.dumps(error_response), status=status.HTTP_400_BAD_REQUEST)
 obtain_new_token = ObtainNewToken.as_view()
 
 def expires_in(token):

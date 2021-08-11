@@ -4,7 +4,7 @@ import './App.css';
 import Login from "./Login";
 
 
-function Home() {
+function Home(props) {
 
     const [pageState, setPageState] = useState({isLoggedIn: false, currentPage: "home"})
     const [userState, setUserState] = useState({email: "", password: "", token: ""})
@@ -56,9 +56,11 @@ function Home() {
         console.log("from app " + value)
         console.log(pageState.currentPage)
     }
-
+    console.log(props.authorization)
     return (
         <div className="App">
+                            {props.authorization}
+
             <div>
             <img src={logo} className="App-logo" alt="logo" />
             <p>

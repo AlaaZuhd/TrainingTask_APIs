@@ -11,10 +11,10 @@ import {
 import Home from "./Home";
 import { useHistory } from "react-router-dom";
 
-function Login({history}) {
+function Login({history, setAuthorizationState}) {
 
     const [state, setState]  =useState({loggedIn:true})
-
+    const [errorState, setErrorState] = useState({"errorMessage": ""})
     // let history = useHistory()
     let loggingFlag = false
     let redirerction = ""
@@ -23,7 +23,6 @@ function Login({history}) {
         userEmail: "",
         userPassword: "",
     })
-
 
     const emailChangeHandler = (event) => {
         event.preventDefault()
@@ -47,19 +46,22 @@ function Login({history}) {
                 body: JSON.stringify({ username: userInput.userEmail, password: userInput.userPassword })
             };
             const response = await fetch('http://127.0.0.1:8000/login', requestOptions)
+            console.log(response)
             if(response.status === 200 && response.ok){
                 const data = await response.json()
                 localStorage.setItem('token', data.token)
                 setState({loggedIn: true})
-                // redirerction = (state.loggedIn === "true" ? <Redirect to="/" /> : <Login/>)
+                setAuthorizationState("true")
+                console.log("before history")
                 history.push("./")
+                console.log("after history")
             }
             else {
                 throw "Email or Password is invalid"
             }
         } catch(error) {
-            let user =  {isLoggedIn: false, username: userInput.userEmail, password: userInput.userPassword, token: ""}
-            // form.setError(error)
+            console.log(error)
+            setErrorState({"errorMessage": error})
         }
     }
 
@@ -86,6 +88,7 @@ function Login({history}) {
                     <input type="submit"value="Login" />
                 </div>
             </form>
+            <p>{errorState.errorMessage}</p>
             <p>If you don't have an account Create one <a href="/logout">Create Account</a></p>
         </div>
     )
