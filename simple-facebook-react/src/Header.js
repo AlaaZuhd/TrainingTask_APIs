@@ -8,6 +8,7 @@ import {
 import Login from "./Login";
 import Home from "./Home"
 import Logout from "./Logout"
+import Register from "./Register";
 
 
 function Header(props) {
@@ -18,39 +19,23 @@ function Header(props) {
         props.onRefClick("login")
     }
 
-    let logoutPageHandler = () => {
-        const requestOptions = {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' }
-        };
-        fetch('http://127.0.0.1:8000/logout', requestOptions)
-            .then(response => {
-                console.log(response.status)
-                if(response.status === 200){
-                    console.log("hi")
-                    // return response.json()
-                }
-                else {
-                    throw "Email or Password is invalid"
-                }
-            })
-            .then(data => {
-                // console.log(data)
-                // return {isLoggedIn: true, username: userInput.userEmail, password: userInput.userPassword}
-            })
-            .catch(error => {
-                // return {isLoggedIn: false, username: userInput.userEmail, password: userInput.userPassword}
-                // console.log(error)
-            })
 
+    const [pageState, setPageState] = useState({isLoggedIn: false, currentPage: "home"})
+    const [userState, setUserState] = useState({email: "", password: "", token: ""})
+    const LoginRequest = (loggedInData) => {
+        setPageState( {isLoggedIn: true, currentPage: "home"})
+        if(loggedInData.isLoggedIn){
+            console.log(loggedInData.isLoggedIn)
+            setUserState({...userState, email: loggedInData.userEmail, password: loggedInData.userPassword, token: loggedInData.token})
+        }
+        console.log(userState.email)
     }
-
     const [isLoggedIn, setIsLoggedIn] = useState({isLoggedIn: "false"})
-    let loginOrLogout = (isLoggedIn.isLoggedIn === "true" ?
+    let loginOrLogout = (isLoggedIn.isLoggedIn === "false" ?
         <Link className="me-3 py-2 text-dark text-decoration-none"
-           to="/logout" onClick={logoutPageHandler}>Log out</Link> :
+           to="/logout" >Log out</Link> :
         <Link className="me-3 py-2 text-dark text-decoration-none"
-           to="/login" onClick={loginPageHandler} onSubmitHandler={props.onSubmitUser} >Log in</Link>
+           to="/login" onClick={loginPageHandler} onSubmitHandler={LoginRequest} >Log in</Link>
     )
     console.log(isLoggedIn.isLoggedIn)
 
@@ -73,14 +58,15 @@ function Header(props) {
                     </nav>
                 </div>
             </header>
-            <Route exact path='/' component={Home}></Route>
-            <Route exact path='/login' component={Login}></Route>
-            <Route exact path='/logout' component={Logout}></Route>
-            {/*<Route exact path='/login' component={Login}></Route>*/}
-            {/*<Route exact path='/login' component={Login}></Route>*/}
-
+            <Route exact path='/' component={Home}>
+            </Route>
+            <Route exact path='/login' component={Login}>
+            </Route>
+            <Route exact path='/logout' component={Logout}>
+            </Route>
+            <Route exact path="/register" component={Register}>
+            </Route>
         </Router>
-
     )
 }
 
