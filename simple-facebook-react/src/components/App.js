@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import logo from './logo.svg';
+import logo from '../logo.svg';
 import './App.css';
 import Header from './Header.js';
-import Login from "./Login";
-import Home from "./Home.js"
-import Logout from "./Logout"
+import Login from "./Login/Login";
+import Home from "./Home/Home.js"
+import Logout from "./Logout/Logout"
 import {
     BrowserRouter as Router,
     Route,

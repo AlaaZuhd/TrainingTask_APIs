@@ -1,4 +1,4 @@
-import loginLogo from './images/login.png';
+import loginLogo from '../../images/login.png';
 import { useState } from 'react';
 // import { Form, Field } from 'react-advanced-form'
 import { Redirect } from "react-router-dom";
@@ -8,10 +8,10 @@ import {
     Link,
     Switch
 } from 'react-router-dom';
-import Home from "./Home";
+import Home from "../Home/Home";
 import { useHistory } from "react-router-dom";
 
-function Login({history, setAuthorizationState}) {
+function Login(props) {
 
     const [state, setState]  =useState({loggedIn:true})
     const [errorState, setErrorState] = useState({"errorMessage": ""})
@@ -51,10 +51,13 @@ function Login({history, setAuthorizationState}) {
                 const data = await response.json()
                 localStorage.setItem('token', data.token)
                 setState({loggedIn: true})
-                setAuthorizationState("true")
+                // console.log(setAuthorizationState)
+                // setAuthorizationState("false")
+                // console.log(setAuthorizationState)
                 console.log("before history")
-                history.push("./")
+                // changeHistory("./")
                 console.log("after history")
+                props.onLogin(true)
             }
             else {
                 throw "Email or Password is invalid"
@@ -69,7 +72,6 @@ function Login({history, setAuthorizationState}) {
         event.preventDefault()
         loginUser(setUserInput)
         setUserInput({userEmail: "", userPassword: ""})
-
     }
 
     return (

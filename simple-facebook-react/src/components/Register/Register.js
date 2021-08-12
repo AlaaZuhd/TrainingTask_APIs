@@ -1,10 +1,11 @@
-import registerLogo from './images/register.png';
+import registerLogo from '../../images/register.png';
 import { useState } from 'react';
 // import { Form, Field } from 'react-advanced-form'
 
 
 function Register({history}) {
 
+    const [errorState, setErrorState] = useState({"errorMessage": ""})
     const [userInput, setUserInput] = useState({
         userEmail: "",
         userPassword: "",
@@ -50,6 +51,7 @@ function Register({history}) {
                                             email: userInput.userEmail,
                                             birth_date: userInput.userBirthdate})
             };
+            setErrorState({"errorMessage": ""})
             const response = await fetch('http://127.0.0.1:8000/users/', requestOptions)
             if(response.status === 201 && response.ok){
                 console.log(response)
@@ -63,13 +65,17 @@ function Register({history}) {
                 // redirerction = (state.loggedIn === "true" ? <Redirect to="/" /> : <Login/>)
                 // history.push("./")
             }
+            else if (response.status === 500){
+                const data = await response.json()
+                throw new Error(data["errorMessage"])
+            }
             else {
-                throw "Entered data is invalid"
+                throw new Error("Entered data is invalid")
             }
         } catch(error) {
             // let user =  {isLoggedIn: false, username: userInput.userEmail, password: userInput.userPassword, token: ""}
             // form.setError(error)
-            console.log(error.message)
+            setErrorState({"errorMessage": error.message})
         }
     }
 
@@ -110,7 +116,7 @@ function Register({history}) {
                 </div>
 
             </form>
-
+            <p>{errorState.errorMessage}</p>
             <p>If you have an account then login <a href="/login">Log in</a></p>
         </div>
     )

@@ -63,7 +63,10 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response("You are not superuser so you don't have an access on these data")
 
     def create(self, request, *args, **kwargs):
-        new_user = CustomUser.create(self, request.data)
+        try:
+            new_user = CustomUser.create(self, request.data)
+        except Exception:
+            return Response({"errorMessage": "Invalid email"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         data= sendActivationLinkThroughEmail(new_user, request)
         messages.success(request, 'Account successfully created')
         return Response(data, status=status.HTTP_201_CREATED)

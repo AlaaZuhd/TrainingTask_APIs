@@ -26,15 +26,15 @@ function Logout(props) {
     }
 
     useEffect(() => {
-        if(!isLoggedOut)
+        if(!props.isLoggedIn)
             loggingOutUser ()
-    });
+    }, []); // adding , [] meaning this action will be rendered once (the first rendering of this component)
 
     useEffect(() => {
         return () => {
             alert("Logging out done successfully")
         }
-    })
+    }, [])
 
     return (
         <div className="login-cbase-container">

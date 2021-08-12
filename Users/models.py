@@ -33,7 +33,10 @@ class CustomUserManager(BaseUserManager):
         user.set_password(password)
         if(not user.is_superuser):
             user.is_active = False
-        user.save()
+        try:
+            user.save()
+        except Exception:
+            raise Exception("invalid email")
         return user
 
     def create_superuser(self, email, password, **extra_fields):
@@ -45,7 +48,10 @@ class CustomUserManager(BaseUserManager):
             raise ValueError(_('Superuser must have is_staff=True.'))
         if extra_fields.get('is_superuser') is not True:
             raise ValueError(_('Superuser must have is_superuser=True.'))
-        return self.create_user(email, password, **extra_fields)
+        try:
+            return self.create_user(email, password, **extra_fields)
+        except Exception:
+            raise Exception("invalid email")
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin, CreateUdateDates):
@@ -65,7 +71,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, CreateUdateDates):
         return self.email
 
     def create(self, validated_data):
-        return CustomUser.objects.create_user(**validated_data)
+        try:
+            return CustomUser.objects.create_user(**validated_data)
+        except Exception:
+            raise ("Invalid email3")
 
 
 # @receiver(post_save, sender= settings.AUTH_USER_MODEL)
