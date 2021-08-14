@@ -10,6 +10,7 @@ import Home from "./Home/Home"
 import Logout from "./Logout/Logout"
 import Register from "./Register/Register";
 import Posts from "./Posts/Posts"
+import Comments from "./Comments/Comments"
 import { useHistory } from "react-router-dom";
 
 
@@ -22,7 +23,7 @@ function Header({history}) {
         console.log("from header")
         setPageState({"isLoggedIn": value})
         console.log(pageState.isLoggedIn)
-        // if(event) {
+        // if(value) {
         //     history.push("./")
         // }
     }
@@ -31,30 +32,36 @@ function Header({history}) {
         setPageState({"isLoggedIn": false})
     }
 
-    const LoginRequest = (loggedInData) => {
-        setPageState( {isLoggedIn: true, currentPage: "home"})
-        if(loggedInData.isLoggedIn){
-            console.log(loggedInData.isLoggedIn)
-            setUserState({...userState, email: loggedInData.userEmail, password: loggedInData.userPassword, token: loggedInData.token})
-        }
-        console.log(userState.email)
-    }
+    // const LoginRequest = (loggedInData) => {
+    //     setPageState( {isLoggedIn: true, currentPage: "home"})
+    //     if(loggedInData.isLoggedIn){
+    //         console.log(loggedInData.isLoggedIn)
+    //         setUserState({...userState, email: loggedInData.userEmail, password: loggedInData.userPassword, token: loggedInData.token})
+    //     }
+    //     console.log(userState.email)
+    // }
 
-    let loginOrLogout = (pageState.isLoggedIn === true ?
-        <Link className="me-3 py-2 text-dark text-decoration-none"
-           to="/logout" onClick={logoutPageHandler} >Log out</Link> :
-        <Link className="me-3 py-2 text-dark text-decoration-none"
-           to="/login" >Log in</Link>
+    // let loginOrLogout = (pageState.isLoggedIn === true ?
+    //     <Link className="me-3 py-2 text-dark text-decoration-none"
+    //        to="/logout" onClick={logoutPageHandler} >Log out</Link> :
+    //     <Link className="me-3 py-2 text-dark text-decoration-none"
+    //        to="/login" >Log in</Link>
+    // )
+
+    let welcomeMessage = (pageState.isLoggedIn ?
+        "Welcome You are logged in":
+        "Welcome you are not logged in"
     )
 
     return (
         <Router>
             <header>
-                <div>
-                    {pageState.isLoggedIn && <p>Welcome You are logged in</p>}
-                    {!pageState.isLoggedIn && <p>Welcome You are not logged in</p>}
-                </div>
                 <div className="d-flex flex-column flex-md-row align-items-center pb-3 mb-4 border-bottom">
+                    <div className=" d-flex align-items-center ">
+                            {/*{pageState.isLoggedIn && <p>Welcome You are logged in</p>}*/}
+                            {/*{!pageState.isLoggedIn && <p>Welcome You are not logged in</p>}*/}
+                        {welcomeMessage}
+                    </div>
                     <nav className="d-inline-flex mt-2 mt-md-0 ms-md-auto">
                         <Link className="me-3 py-2 text-dark text-decoration-none"
                            to="/">Home</Link>
@@ -63,16 +70,21 @@ function Header({history}) {
                         <Link className="me-3 py-2 text-dark text-decoration-none"
                            to="/posts">Posts</Link>
                         <Link className="me-3 py-2 text-dark text-decoration-none"
-                              to="/my_cart">Commnets</Link>
-                        {loginOrLogout}
-                        <Link className="py-2 text-dark text-decoration-none"
-                              to="/register">Register</Link>
+                              to="/my-comments">My Commnets</Link>
+                        {pageState.isLoggedIn && <Link className="me-3 py-2 text-dark text-decoration-none"
+                              to="/logout" onClick={logoutPageHandler} >Log out</Link>}
+                        {!pageState.isLoggedIn && <Link className="me-3 py-2 text-dark text-decoration-none"
+                              to="/login" >Log in</Link>}
+                        {!pageState.isLoggedIn && <Link className="py-2 text-dark text-decoration-none"
+                              to="/register">Register</Link>}
                     </nav>
                 </div>
             </header>
             <Route exact path='/' component={ () => <Home authorization={pageState.isLoggedIn} />}  >
             </Route>
             <Route exact path='/posts' component={ () => <Posts authorization={pageState.isLoggedIn} />}  >
+            </Route>
+            <Route exact path='/my-comments' component={ () => <Comments authorization={pageState.isLoggedIn} />}  >
             </Route>
             <Route exact path='/login' component= {() => <Login onLogin={loginPageHandler}/>}  >
             </Route>

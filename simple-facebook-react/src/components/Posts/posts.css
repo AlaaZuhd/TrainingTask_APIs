@@ -1,0 +1,30 @@
+
+
+/*.nextBtn {*/
+/*    background-image: url("../../images/right-arrow.png");*/
+/*}*/
+
+/*.prevBtn {*/
+/*    background-image: url("../../images/left-arrow.png");*/
+/*}*/
+
+/*.nextBtn, .prevBtn {*/
+/*    height: 40px;*/
+/*    width: 20px;*/
+/*    background-color: transparent;*/
+/*    background-repeat: no-repeat;*/
+/*    background-size: auto 20px;*/
+/*    border: 0px solid #251535;*/
+/*    background-position: center;*/
+
+/*}*/
+
+
+.open-post-btn {
+    background-color: #568f8f;
+    border-radius: 50px;
+    border: none;
+    margin-right: 90px;
+    padding: 8px;
+    float: right;
+}

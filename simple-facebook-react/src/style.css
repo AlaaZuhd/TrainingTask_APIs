@@ -1,0 +1,102 @@
+* {
+    box-sizing: border-box;
+}
+ul {
+    padding: 0px;
+    margin: 0px
+}
+
+.login-cbase-container, .register-cbase-container {
+    width: 60%;
+    margin: auto;
+}
+
+.field-container {
+    display: flex;
+    justify-content: center;
+    padding: 5px;
+}
+
+.field-container label {
+    flex-basis: 25%;
+    border-left: 5px solid #568f8f;
+    text-align: left;
+    padding: 5px;
+}
+
+.field-container input {
+    border: 0px solid #568f8f;
+    border-radius: 50px;
+    flex-basis: 60%;
+    padding: 5px;
+    background-color: #dcdcdc;
+    border-left: 5px solid #568f8f;
+    border-right: 5px solid #568f8f
+
+}
+
+.field-container input[type="submit"] {
+    width: 100%;
+    background-color: #568f8f;
+    flex-basis: 85%;
+}
+
+
+/*@media screen and (max-width: 600px) {*/
+/*  label, input, input[type=submit] {*/
+/*    width: 100%;*/
+/*    margin-top: 0;*/
+/*  }*/
+/*}*/
+
+.nextBtn {
+    background-image: url("./images/right-arrow.png");
+}
+
+.prevBtn {
+    background-image: url("./images/left-arrow.png");
+}
+
+.nextBtn, .prevBtn {
+    height: 20px;
+    width: 20px;
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-size: auto 20px;
+    border: 0px solid #568f8f;
+    background-position: center;
+    /*transition: 0.6s ease;*/
+}
+
+.prevBtn:hover, .nextBtn:hover {
+  border: 1px solid #568f8f;
+}
+
+.addOpacity {
+    opacity: 0.50;
+}
+
+.addOpacity:hover {
+    border: 0px solid #568f8f;
+}
+
+.Post {
+    background-color: #f2f2f2;
+    border: 2px solid #568f8f;
+    border-radius: 50px;
+    margin: auto;
+    overflow: hidden;
+    padding-bottom: 10px;
+}
+
+.post-page-container {
+    margin: auto;
+    padding: 10px;
+}
+
+.Post h3 {
+    background-color: #568f8f;
+    padding: 10px;
+    box-sizing: border-box;
+    width: 100%;
+}

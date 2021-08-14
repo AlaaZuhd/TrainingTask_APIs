@@ -1,5 +1,6 @@
 import registerLogo from '../../images/register.png';
 import { useState } from 'react';
+import loginLogo from "../../images/login.png";
 // import { Form, Field } from 'react-advanced-form'
 
 
@@ -88,9 +89,10 @@ function Register({history}) {
 
     return (
         <div className="register-cbase-container">
-            <img src={registerLogo} className="register-logo" alt="register logo" width="100px" height="100px"/>
             <form onSubmit={submitHandler}>
-
+                <fieldset>
+                    <legend>Register Form</legend>
+                    <legend><img src={registerLogo} className="register-logo" alt="register logo" width="100px" height="100px"/></legend>
                 <div className="field-container">
                     <label htmlFor="login_user_username">User Name</label>
                     <input type="text" id="login_user_username" value={userInput.userUsername} placeholder="Enter your username" required="True" onChange={usernameChangeHandler}/>
@@ -114,7 +116,7 @@ function Register({history}) {
                 <div className="field-container">
                     <input type="submit"value="Register" />
                 </div>
-
+            </fieldset>
             </form>
             <p>{errorState.errorMessage}</p>
             <p>If you have an account then login <a href="/login">Log in</a></p>
