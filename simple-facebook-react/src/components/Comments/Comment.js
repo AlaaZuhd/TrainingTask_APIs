@@ -6,17 +6,22 @@ import {Redirect} from "react-router-dom";
 
 function Comment(props) {
 
+    let date = new Date(props.comment.create_date)
+    let dd = date.getFullYear() + '-' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '-' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate()))
+    const [commentCreateDate, setCommentCreateDate] = useState(dd)
+    date = new Date(props.comment.updated_date)
+    dd = date.getFullYear() + '-' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '-' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate()))
+    const [commentUpdatedDate, setCommentUpdatedDate] = useState(dd)
+
     const [errorState, setErrorState] = useState({"errorMessage": ""})
     const [commentContent, setCommentContent] = useState(props.comment.content)
     const [commentOwner, setCommentOwner] = useState(props.comment.owner)
     const [commentImage, setCommentImage] = useState(props.comment.image)
-    const [commentCreateDate, setCommentCreateDate] = useState(props.comment.create_date)
-    const [commentUpdatedDate, setCommentUpdatedDate] = useState(props.comment.updated_date)
     const [commentPost, setCommentPost] = useState(props.comment.post)
     const [editState, setEditState] = useState(false)
     const [deleteState, setDeleteState] = useState(false)
     const [isLoggedin, setIsLoggedin] = useState(props.authorization)
-    alert(props.comment.image)
+
     const contentChangeHandler = (event) => {
         event.preventDefault()
         setCommentContent(event.target.value)
@@ -32,8 +37,7 @@ function Comment(props) {
     const imageChangeHandler = (event) => {
         event.preventDefault()
         setCommentImage(event.target.value)
-        if(event.target.value.length > 0)
-            props.comment.image = event.target.files[0]
+        props.comment.image = event.target.files[0]
     }
 
     const createDateChangeHandler = (event) => {
@@ -54,26 +58,30 @@ function Comment(props) {
 
     const updateComment = async (event) => {
         event.preventDefault()
-        // props.updateComment(props.post)
         setEditState(false)
         try {
             const token = localStorage.getItem("token")
+            const dataU = new FormData()
+            dataU.append('content', props.comment.content)
+            dataU.append('image', props.comment.image, props.comment.image.name)
+            alert(props.comment.image.name)
             const requestOptions = {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json', "Authorization" : "token " + token },
-                body: JSON.stringify({ content: props.comment.content, image: URL.createObjectURL(props.comment.image) })
+                body: dataU
             };
+            alert("hi")
             const url = "http://localhost:8000/comments/" + props.comment.id + "/"
             const response = await fetch(url, requestOptions)
             if(response.status === 200 && response.ok){
                 let data = await response.json()
-                // getPosts("http://localhost:8000/posts/")
             }
             else {
                 throw "Invalid request to update the comment"
             }
         } catch(error) {
             setErrorState({"errorMessage": error})
+            alert("catch")
         }
 
     }
@@ -81,6 +89,7 @@ function Comment(props) {
     const displayComment = (event) => {
         event.preventDefault()
         setEditState(true)
+
         // props.displayComment(props.post)
     }
 

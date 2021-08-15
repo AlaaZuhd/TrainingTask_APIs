@@ -27,7 +27,7 @@ class Comment(CreateUdateDates):
     # post_id = models.ForeignKey('Posts.Post', related_name='comments', on_delete=models.CASCADE, null=True)
     owner = models.ForeignKey('Users.CustomUser', related_name='comments', on_delete=models.CASCADE)
     post = models.ForeignKey('Posts.Post', related_name='comments', on_delete=models.CASCADE)
-    image = models.ImageField(upload_to=None, height_field=None, width_field=None, max_length=None)
+    image = models.ImageField(upload_to='Comments/static/images', height_field=None, width_field=None, max_length=None)
     # create_date = models.DateTimeField(auto_snow_add= True, editable= False)
     # updated_date = models.DateTimeField(auto_now= True, editable= False)
     objects= CommentManager()

@@ -6,11 +6,16 @@ import "./posts.css"
 
 function Post(props) {
 
+    let date = new Date(props.post.create_date)
+    let dd = date.getFullYear() + '-' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '-' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate()))
+    const [postCreateDate, setPostCreateDate] = useState(dd)
+    date = new Date(props.post.updated_date)
+    dd = date.getFullYear() + '-' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '-' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate()))
+    const [postUpdatedDate, setPostUpdatedDate] = useState(dd)
+
     const [postTitle, setPostTitle] = useState(props.post.title)
     const [postOwner, setPostOwner] = useState(props.post.owner)
     const [postDescription, setPostDescription] = useState(props.post.description)
-    const [postCreateDate, setPostCreateDate] = useState(props.post.create_date)
-    const [postUpdatedDate, setPostUpdatedDate] = useState(props.post.updated_date)
     const [postNumberOfComments, setPostNumberOfComments] = useState(props.numberOfComments)
     const [showComments, setShowComments] = useState(true)
     const titleChangeHandler = (event) => {

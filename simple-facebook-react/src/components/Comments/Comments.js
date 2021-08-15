@@ -44,8 +44,6 @@ function Comments(props) {
             }
         } catch(error) {
             console.log(error)
-                                alert("hi3")
-
             setErrorState({"errorMessage": error})
         }
     }
