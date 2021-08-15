@@ -80,13 +80,17 @@ ul {
     border: 0px solid #568f8f;
 }
 
-.Post {
+.Post, .Comment {
     background-color: #f2f2f2;
     border: 2px solid #568f8f;
     border-radius: 50px;
     margin: auto;
     overflow: hidden;
     padding-bottom: 10px;
+}
+
+.Comment {
+    margin-left: 20px;
 }
 
 .post-page-container {
@@ -99,4 +103,15 @@ ul {
     padding: 10px;
     box-sizing: border-box;
     width: 100%;
+}
+
+.open-post-btn, .update-post-btn, .view-post-comments-btn,
+.delete-post-btn, .hide-post-comments-btn, .edit-comment-btn,
+.delete-comment-btn, .update-comment-btn, .cancel-updating-comment-btn{
+    background-color: #568f8f;
+    border-radius: 50px;
+    border: none;
+    margin-right: 90px;
+    padding: 8px;
+    float: right;
 }

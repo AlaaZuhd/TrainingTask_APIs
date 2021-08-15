@@ -12,10 +12,12 @@ function Post(props) {
     const [postCreateDate, setPostCreateDate] = useState(props.post.create_date)
     const [postUpdatedDate, setPostUpdatedDate] = useState(props.post.updated_date)
     const [postNumberOfComments, setPostNumberOfComments] = useState(props.numberOfComments)
-
+    const [showComments, setShowComments] = useState(true)
     const titleChangeHandler = (event) => {
         event.preventDefault()
         setPostTitle(event.target.value)
+        if(event.target.value.length > 0)
+            props.post.title = event.target.value
     }
 
     const ownerChangeHandler = (event) => {
@@ -26,6 +28,8 @@ function Post(props) {
     const descriptionChangeHandler = (event) => {
         event.preventDefault()
         setPostDescription(event.target.value)
+        if(event.target.value.length > 0)
+            props.post.description = event.target.value
     }
 
     const createDateChangeHandler = (event) => {
@@ -46,6 +50,28 @@ function Post(props) {
     const displayPost = (event) => {
         event.preventDefault()
         props.showModal(props.post)
+    }
+
+    const updatePost = (event) => {
+        event.preventDefault()
+        props.updatePost(props.post)
+    }
+
+    const viewPostComments = (event) => {
+        event.preventDefault()
+        setShowComments(false)
+        props.viewPostComments(props.post)
+    }
+
+    const hidePostComments = (event) => {
+        event.preventDefault()
+        setShowComments(true)
+        props.hidePostComments(props.post)
+    }
+
+    const deletePost = (event) => {
+        event.preventDefault()
+        props.deletePost(props.post)
     }
 
     let content = (props.authorization ?
@@ -82,7 +108,14 @@ function Post(props) {
                     <input type="number" id="post_number_of_comments" value={postNumberOfComments} required="True" onChange={numberOfCommentsChangeHandler} disabled="true"/>
                 </div>
             </form>
-            <button className="open-post-btn" onClick={displayPost}>Open Post</button>
+            <div>
+                {props.disabled && <button className="open-post-btn" onClick={displayPost}>Open Post</button>}
+                {!props.disabled && <button className="update-post-btn" onClick={updatePost}>Update Post</button>}
+                {!props.disabled && showComments && <button className="view-post-comments-btn" onClick={viewPostComments}>View Post Comments</button>}
+                {!props.disabled && !showComments && <button className="hide-post-comments-btn" onClick={hidePostComments}>Hide Post Comments</button>}
+                {!props.disabled && <button className="delete-post-btn" onClick={deletePost}>Delete Post</button>}
+            </div>
+
         </div>:
         <div>
             You need to login to view this page

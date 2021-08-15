@@ -7,12 +7,14 @@ import Comment from "./Comment.js"
 function Comments(props) {
 
     const [errorState, setErrorState] = useState({"errorMessage": ""})
-    const [commentState, setCommentState] = useState([])
+    const [commentsState, setCommentsState] = useState([])
     const [numberOfComments, setNumberOfComments] = useState(0)
     const [firstCommentCountInPage, setFirstCommentCountInPage] = useState(0)
     const [nextPage, setNextPage] = useState(null)
     const [prevPage, setPrevPage] = useState(null)
     let comments = []
+        const [isLoggedin, setIsLoggedin] = useState(props.authorization)
+
 
     const getComments = async (url) => {
         try {
@@ -27,26 +29,34 @@ function Comments(props) {
                 setNumberOfComments(data["count"])
                 setNextPage(data["next"])
                 setPrevPage(data["previous"])
-                for(let j=0; j<numberOfComments; j++){
+                let numberOfCommentsInCurrentPage = data.results.length
+                for(let j=0; j< numberOfCommentsInCurrentPage; j++){
                     if(j===0)
                         setFirstCommentCountInPage(data.results[j].id) // back later, there is an error.
                     comments.push(data.results[j])
                 }
-            setCommentState(comments)
+                console.log(comments[0])
+                setCommentsState([])
+                setCommentsState(comments)
             }
             else {
                 throw "Invalid request to get the comments"
             }
         } catch(error) {
             console.log(error)
+                                alert("hi3")
+
             setErrorState({"errorMessage": error})
         }
     }
 
 
     useEffect(() => {
-        if(props.authorization)
+        if(localStorage.getItem("token")) {
             getComments('http://127.0.0.1:8000/comments/')
+            setIsLoggedin(true)
+        }
+        else setIsLoggedin(false)
     }, []);
 
     const getPrevPage = () => {
@@ -61,7 +71,7 @@ function Comments(props) {
         }
     }
 
-    let content = (props.authorization ?
+    let content = (isLoggedin?
         <div className="Comments">
             <div>
                 <span>Comment NO.</span>
@@ -73,8 +83,8 @@ function Comments(props) {
                 <button className="nextBtn" onClick={getNextPage} />
             </div>
             <ul>
-                {commentState.map((comment) =>
-                    <Comment key={comment.id} comment={comment} authorization={props.authorization}/>
+                {commentsState.map((comment) =>
+                    <Comment key={comment.id} comment={comment} authorization={props.authorization} disabled={true}/>
                 )}
             </ul>
         </div>:

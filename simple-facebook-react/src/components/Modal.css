@@ -11,10 +11,12 @@
   position:fixed;
   background: white;
   width: 80%;
+  max-height: 90%;
   height: auto;
   top:50%;
   left:50%;
   transform: translate(-50%,-50%);
+  overflow: scroll;
 }
 
 .display-block {
@@ -23,4 +25,13 @@
 
 .display-none {
   display: none;
+}
+
+.close-modal-btn {
+    background-color: #568f8f;
+    border-radius: 50px;
+    border: none;
+    margin-right: 90px;
+    padding: 8px;
+    float: right;
 }

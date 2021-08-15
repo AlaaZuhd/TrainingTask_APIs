@@ -68,6 +68,13 @@ class PostViewSet(viewsets.ModelViewSet):
         request.data['owner id'] = request.user.id
         print("here")
         return Response(request.data, status=status.HTTP_201_CREATED)
+    def destroy(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            self.perform_destroy(instance)
+        except Exception:
+            return Response({"message": "Object Not found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"message": "Object deleted Successfully"}, status=status.HTTP_204_NO_CONTENT)
 
     # @action(detail=True, methods=["GET"])
     # def comments(self, request, pk=None):

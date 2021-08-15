@@ -8,6 +8,6 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Comment
         #fields = '__all__'
-        fields = ['id', 'content', 'owner', 'post', 'create_date', 'updated_date']
+        fields = ['id', 'content', 'owner', 'post', 'create_date', 'updated_date', 'image']
 
 
