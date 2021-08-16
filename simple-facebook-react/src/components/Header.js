@@ -11,22 +11,16 @@ import Logout from "./Logout/Logout"
 import Register from "./Register/Register";
 import Posts from "./Posts/Posts"
 import Comments from "./Comments/Comments"
+import Profile from './Users/Profile'
 import { useHistory } from "react-router-dom";
 
 
-function Header({history}) {
+function Header() {
 
     const [pageState, setPageState] = useState({isLoggedIn: false, currentPage: "home"})
     const [userState, setUserState] = useState({email: "", password: "", token: ""})
-    ///////////// revist this
-    let loginPageHandler = (value) => {
-        console.log("from header")
-        setPageState({"isLoggedIn": value})
-        console.log(pageState.isLoggedIn)
-        // if(value) {
-        //     history.push("./")
-        // }
-    }
+
+
 
     let logoutPageHandler = (event) => {
         setPageState({"isLoggedIn": false})
@@ -64,9 +58,9 @@ function Header({history}) {
                     </div>
                     <nav className="d-inline-flex mt-2 mt-md-0 ms-md-auto">
                         <Link className="me-3 py-2 text-dark text-decoration-none"
-                           to="/">Home</Link>
+                           to="/home">Home</Link>
                         <Link className="me-3 py-2 text-dark text-decoration-none"
-                           to="http://127.0.0.1:8000/ECW#products">Users</Link>
+                           to="/my-profile">My Profile</Link>
                         <Link className="me-3 py-2 text-dark text-decoration-none"
                            to="/posts">Posts</Link>
                         <Link className="me-3 py-2 text-dark text-decoration-none"
@@ -80,18 +74,15 @@ function Header({history}) {
                     </nav>
                 </div>
             </header>
-            <Route exact path='/' component={ () => <Home authorization={pageState.isLoggedIn} />}  >
-            </Route>
-            <Route exact path='/posts' component={ () => <Posts authorization={pageState.isLoggedIn} />}  >
-            </Route>
-            <Route exact path='/my-comments' component={ () => <Comments authorization={pageState.isLoggedIn} />}  >
-            </Route>
-            <Route exact path='/login' component= {() => <Login onLogin={loginPageHandler}/>}  >
-            </Route>
-            <Route exact path='/logout' component= {() => <Logout authorization={pageState.isLoggedIn} />} >
-            </Route>
-            <Route exact path="/register" component={Register}>
-            </Route>
+
+            <Route exact path='/home' component={ () => <Home authorization={pageState.isLoggedIn} />} />
+            <Route exact path='/my-profile' component={ () => <Profile authorization={pageState.isLoggedIn} />} />
+            <Route exact path='/posts' component={ () => <Posts authorization={pageState.isLoggedIn} />}  />
+            <Route exact path='/my-comments' component={ () => <Comments authorization={pageState.isLoggedIn} />} />
+            <Route exact path='/login' component={Login} />
+            <Route exact path='/logout' component= {() => <Logout authorization={pageState.isLoggedIn} />} />
+            <Route exact path="/register" component={Register} />
+
         </Router>
     )
 }

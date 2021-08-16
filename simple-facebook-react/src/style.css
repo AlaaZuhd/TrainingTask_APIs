@@ -107,7 +107,9 @@ ul {
 
 .open-post-btn, .update-post-btn, .view-post-comments-btn,
 .delete-post-btn, .hide-post-comments-btn, .edit-comment-btn,
-.delete-comment-btn, .update-comment-btn, .cancel-updating-comment-btn{
+.delete-comment-btn, .update-comment-btn, .cancel-updating-comment-btn,
+.edit-user-btn, .delete-user-btn, .update-user-btn, .cancel-updating-deleting-user-btn,
+.change-password-btn{
     background-color: #568f8f;
     border-radius: 50px;
     border: none;

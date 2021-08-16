@@ -1,5 +1,4 @@
 import {useEffect, useState} from 'react';
-import logo from '../../logo.svg';
 import '../App.css';
 import "../../style.css"
 import Post from "./Post.js"
@@ -24,13 +23,17 @@ function Posts(props) {
     const [postId, setPostId] = useState(null)
     const [commentState, setCommentState] = useState([])
     const [showCommentsState, setShowCommentsState] = useState(false)
+    const [updatedDateState, setUpdatedDateState] = useState(false)
+
     let posts = []
     let comments = []
 
     useEffect(() => {
-        if(props.authorization)
+        if(localStorage.getItem("token"))
             getPosts('http://127.0.0.1:8000/posts/')
     }, []);
+
+
 
     useEffect( () => {
         setPrevTitle(prevBtnTitle)
@@ -128,13 +131,13 @@ function Posts(props) {
 
 
     const getPrevPage = () => {
-        if(prevPage !== null && props.authorization){
+        if(prevPage !== null && localStorage.getItem("token") !== "" ){
             getPosts(prevPage)
         }
     }
 
     const getNextPage = () => {
-        if(nextPage !== null && props.authorization){
+        if(nextPage !== null && localStorage.getItem("token") !== ""){
             getPosts(nextPage)
         }
     }
@@ -164,7 +167,15 @@ function Posts(props) {
                 let data = await response.json()
                 // let posts = (postState.filter(post_ => post_.id === post.id).map(post_ => data))
                 // setPostState(posts)
-                // alert("hi1")
+                let posts = []
+                for(let i=0; i<postState.length; i++) {
+                    if (postState[i].id === data.id) {
+                        posts.push(data)
+                        setPostId(data)
+                    } else
+                        posts.push(postState[i])
+                }
+                setPostState(posts)
                 getPosts("http://localhost:8000/posts/")
             }
             else {
@@ -210,7 +221,7 @@ function Posts(props) {
         }
     }
 
-    let content = (props.authorization ?
+    let content = (localStorage.getItem("token") !== "" ?
         <div className="Posts">
             <div className="d-flex align-items-center justify-content-center">
                 <span>Post NO.</span>
@@ -233,7 +244,7 @@ function Posts(props) {
                 )}
             </ul>
             {postId !== null && <Modal show={modalState.show} handleCloseModal={hideModal}>
-                <Post key={postId["id"]}
+                <Post key={postId.updated_date}
                       post={postId}
                       authorization={props.authorization}
                       numberOfComments={postId.comments.length}
@@ -247,6 +258,7 @@ function Posts(props) {
                 <div className="post-comments">
                     {showCommentsState && postId["comments"].map( (comment) =>
                         <Comment key={comment.id}
+                              comment={comment}
                               comment={comment}
                               authorization={props.authorization}
                               // numberOfComments={post.comments.length}

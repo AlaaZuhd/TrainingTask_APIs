@@ -13,13 +13,10 @@ import { useHistory } from "react-router-dom";
 
 import "../../style.css"
 
-function Login(props) {
+function Login({history}) {
 
     const [state, setState]  =useState({loggedIn:true})
     const [errorState, setErrorState] = useState({"errorMessage": ""})
-    // let history = useHistory()
-    let loggingFlag = false
-    let redirerction = ""
 
     const [userInput, setUserInput] = useState({
         userEmail: "",
@@ -53,13 +50,7 @@ function Login(props) {
                 const data = await response.json()
                 localStorage.setItem('token', data.token)
                 setState({loggedIn: true})
-                // console.log(setAuthorizationState)
-                // setAuthorizationState("false")
-                // console.log(setAuthorizationState)
-                console.log("before history")
-                // changeHistory("./")
-                console.log("after history")
-                props.onLogin(true)
+                history.push("./home")
             }
             else {
                 throw "Email or Password is invalid"
@@ -96,7 +87,7 @@ function Login(props) {
                 </fieldset>
             </form>
             <p>{errorState.errorMessage}</p>
-            <p>If you don't have an account Create one <a href="/logout">Create Account</a></p>
+            <p>If you don't have an account Create one <a href="/register">Create Account</a></p>
         </div>
     )
 }

@@ -36,7 +36,7 @@ function Comment(props) {
 
     const imageChangeHandler = (event) => {
         event.preventDefault()
-        setCommentImage(event.target.value)
+        setCommentImage(event.target.files[0])
         props.comment.image = event.target.files[0]
     }
 
@@ -61,27 +61,24 @@ function Comment(props) {
         setEditState(false)
         try {
             const token = localStorage.getItem("token")
-            const dataU = new FormData()
-            dataU.append('content', props.comment.content)
-            dataU.append('image', props.comment.image, props.comment.image.name)
-            alert(props.comment.image.name)
             const requestOptions = {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json', "Authorization" : "token " + token },
-                body: dataU
+                body: JSON.stringify({'content': props.comment.content})
             };
-            alert("hi")
             const url = "http://localhost:8000/comments/" + props.comment.id + "/"
             const response = await fetch(url, requestOptions)
             if(response.status === 200 && response.ok){
                 let data = await response.json()
+                date = new Date(data.updated_date)
+                dd = date.getFullYear() + '-' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '-' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate()))
+                setCommentUpdatedDate(dd)
             }
             else {
                 throw "Invalid request to update the comment"
             }
         } catch(error) {
             setErrorState({"errorMessage": error})
-            alert("catch")
         }
 
     }
@@ -133,7 +130,7 @@ function Comment(props) {
 
     useEffect(() => {
         if(localStorage.getItem("token"))
-        setIsLoggedin(true)
+            setIsLoggedin(true)
         else
             setIsLoggedin(false)
     }, [])
@@ -164,6 +161,7 @@ function Comment(props) {
 
                 <div className="field-container">
                     <label htmlFor="comment_image">Image</label>
+                    {/*<img src={commentImage} />*/}
                     <input type="file" id="comment_image" src={commentImage} placeholder="Choose an image" required="True" onChange={imageChangeHandler} disabled={!editState}/>
                 </div>
 
