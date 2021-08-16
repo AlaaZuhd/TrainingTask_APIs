@@ -3,6 +3,8 @@ import logo from '../../logo.svg';
 import '../App.css';
 import "../../style.css"
 import {Redirect} from "react-router-dom";
+import Modal from "../Modal";
+import User from "../Users/User";
 
 function Comment(props) {
 
@@ -15,12 +17,15 @@ function Comment(props) {
 
     const [errorState, setErrorState] = useState({"errorMessage": ""})
     const [commentContent, setCommentContent] = useState(props.comment.content)
-    const [commentOwner, setCommentOwner] = useState(props.comment.owner)
+    const [commentOwnerId, setCommentOwnerId] = useState(props.comment.owner)
     const [commentImage, setCommentImage] = useState(props.comment.image)
     const [commentPost, setCommentPost] = useState(props.comment.post)
     const [editState, setEditState] = useState(false)
     const [deleteState, setDeleteState] = useState(false)
+    const [commentOwner, setCommentOwner] = useState("")
+    const [showCommentOwnerState, setShowCommentOwnerState] = useState(false)
     const [isLoggedin, setIsLoggedin] = useState(props.authorization)
+    const [isLoading, setIsLoading] = useState(false)
 
     const contentChangeHandler = (event) => {
         event.preventDefault()
@@ -29,10 +34,10 @@ function Comment(props) {
             props.comment.content = event.target.value
     }
 
-    const ownerChangeHandler = (event) => {
-        event.preventDefault()
-        setCommentOwner(event.target.value)
-    }
+    // const ownerChangeHandler = (event) => {
+    //     event.preventDefault()
+    //     setCommentOwnerId(event.target.value)
+    // }
 
     const imageChangeHandler = (event) => {
         event.preventDefault()
@@ -128,17 +133,43 @@ function Comment(props) {
 
     }
 
+    const getUser = async (url) => {
+        try {
+            const token = localStorage.getItem("token")
+            const requestOptions = {
+                method: 'GET',
+                headers: {'Content-Type': 'application/json', "Authorization": "token " + token}
+            };
+            setIsLoading(true)
+            const response = await fetch(url, requestOptions)
+            if (response.status === 200 && response.ok) {
+                let data = await response.json()
+                setCommentOwner(data)
+            } else {
+                throw "Invalid request to get the user"
+            }
+        } catch (error) {
+            setErrorState({"errorMessage": error})
+        }
+    }
+
+    const showCommentOwner = (event) => {
+        event.preventDefault()
+        setShowCommentOwnerState(true)
+    }
+
+    const hideCommentOwner = () => {
+        setShowCommentOwnerState(false)
+    }
+
     useEffect(() => {
         if(localStorage.getItem("token"))
             setIsLoggedin(true)
         else
             setIsLoggedin(false)
+        getUser('http://localhost:8000/users/' + commentOwnerId + '/')
     }, [])
 
-    // const updatedDateChangeHandler = (event) => {
-    //     event.preventDefault()
-    //     setCommentUpdatedDate(event.target.value)
-    // }
     let content = (isLoggedin ?
         <div className="Comment">
             <h3>Comment NO.{props.comment.id}</h3>
@@ -151,7 +182,8 @@ function Comment(props) {
 
                 <div className="field-container">
                     <label htmlFor="comment_owner">Owner</label>
-                    <input type="text" id="comment_owner" value={commentOwner} placeholder="Enter the Owner name" required="True" onChange={ownerChangeHandler} disabled="true"/>
+                    <p> <a href="" onClick={showCommentOwner}>{commentOwner.user_name}</a> </p>
+                    {/*<input type="text" id="comment_owner" value={commentOwnerId} placeholder="Enter the Owner name" required="True" onChange={ownerChangeHandler} disabled="true"/>*/}
                 </div>
 
                 <div className="field-container">
@@ -181,7 +213,12 @@ function Comment(props) {
                 {editState && <button className="update-comment-btn" onClick={updateComment}>Update Comment</button>}
                 {editState && <button className="cancel-updating-comment-btn" onClick={cancelUpdating}>Cancel</button>}
             </div>
-
+            {
+                showCommentOwnerState &&
+                <Modal show={showCommentOwnerState} handleCloseModal={hideCommentOwner}>
+                    <User key={commentOwnerId} user={commentOwner}/>
+                </Modal>
+            }
         </div>
         :
         <div>

@@ -3,22 +3,29 @@ import logo from '../../logo.svg';
 import '../App.css';
 import "../../style.css"
 import "./posts.css"
+import Modal from "../Modal";
+import ChangePassword from "../Users/ChangePassword";
+import User from "../Users/User";
 
 function Post(props) {
 
     let date = new Date(props.post.create_date)
-    let dd = date.getFullYear() + '-' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '-' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate()))
-    const [postCreateDate, setPostCreateDate] = useState(dd)
+    let formatedDate = date.getFullYear() + '-' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '-' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate()))
+    const [postCreateDate, setPostCreateDate] = useState(formatedDate)
     date = new Date(props.post.updated_date)
-    dd = date.getFullYear() + '-' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '-' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate()))
-    const [postUpdatedDate, setPostUpdatedDate] = useState(dd)
+    formatedDate = date.getFullYear() + '-' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '-' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate()))
+    const [postUpdatedDate, setPostUpdatedDate] = useState(formatedDate)
 
     const [postTitle, setPostTitle] = useState(props.post.title)
-    const [postOwner, setPostOwner] = useState(props.post.owner)
+    const [postOwnerId, setPostOwnerId] = useState(props.post.owner)
     const [postDescription, setPostDescription] = useState(props.post.description)
     const [postNumberOfComments, setPostNumberOfComments] = useState(props.numberOfComments)
     const [showComments, setShowComments] = useState(true)
-    const [owner, SetOwner] = useState("")
+    const [postOwner, setPostOwner] = useState("")
+    const [showPostOwnerState, setShowPostOwnerState] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
+    const [serrorState, setErrorState] = useState({"errorMessage": ""})
+
     const titleChangeHandler = (event) => {
         event.preventDefault()
         setPostTitle(event.target.value)
@@ -28,7 +35,7 @@ function Post(props) {
 
     const ownerChangeHandler = (event) => {
         event.preventDefault()
-        setPostOwner(event.target.value)
+        setPostOwnerId(event.target.value)
     }
 
     const descriptionChangeHandler = (event) => {
@@ -91,7 +98,7 @@ function Post(props) {
             const response = await fetch(url, requestOptions)
             if (response.status === 200 && response.ok) {
                 let data = await response.json()
-                setOwner(data)
+                setPostOwner(data)
             } else {
                 throw "Invalid request to get the user"
             }
@@ -99,6 +106,19 @@ function Post(props) {
             setErrorState({"errorMessage": error})
         }
     }
+
+    const showPostOwner = (event) => {
+        event.preventDefault()
+        setShowPostOwnerState(true)
+    }
+
+    const hidePostOwner = () => {
+        setShowPostOwnerState(false)
+    }
+
+    useEffect(() => {
+        getUser('http://localhost:8000/users/' + postOwnerId + '/')
+    }, [])
 
     let content = (localStorage.getItem("token") !== "" ?
             <div className="Post">
@@ -113,9 +133,9 @@ function Post(props) {
 
                     <div className="field-container">
                         <label htmlFor="post_owner">Owner</label>
-                        <p>{owner}</p>
-                        <input type="text" id="post_owner" value={postOwner} placeholder="Enter the Owner name"
-                               required="True" onChange={ownerChangeHandler} disabled="true"/>
+                        <p> <a href="" onClick={showPostOwner}>{postOwner.user_name}</a> </p>
+                        {/*<input type="text" id="post_owner" value={postOwnerId} placeholder="Enter the Owner name"*/}
+                        {/*       required="True" onChange={ownerChangeHandler} disabled="true"/>*/}
                     </div>
 
                     <div className="field-container">
@@ -124,6 +144,7 @@ function Post(props) {
                                placeholder="Enter the description" required="True" onChange={descriptionChangeHandler}
                                disabled={props.disabled}/>
                     </div>
+
                     <div className="field-container">
                         <label htmlFor="post_create_date">Created Date</label>
                         <input type="date" id="post_create_date" value={postCreateDate}
@@ -152,6 +173,13 @@ function Post(props) {
                     <button className="hide-post-comments-btn" onClick={hidePostComments}>Hide Post Comments</button>}
                     {!props.disabled && <button className="delete-post-btn" onClick={deletePost}>Delete Post</button>}
                 </div>
+
+                {
+                    showPostOwnerState &&
+                    <Modal show={showPostOwnerState} handleCloseModal={hidePostOwner}>
+                        <User key={postOwnerId} user={postOwner}/>
+                    </Modal>
+                }
 
             </div> :
             <div>
