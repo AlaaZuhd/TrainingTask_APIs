@@ -165,8 +165,6 @@ function Posts(props) {
             const response = await fetch(url, requestOptions)
             if(response.status === 200 && response.ok){
                 let data = await response.json()
-                // let posts = (postState.filter(post_ => post_.id === post.id).map(post_ => data))
-                // setPostState(posts)
                 let posts = []
                 for(let i=0; i<postState.length; i++) {
                     if (postState[i].id === data.id) {
@@ -250,10 +248,11 @@ function Posts(props) {
                       numberOfComments={postId.comments.length}
                       disabled={false}
                       showModal={showModal}
-                      updatePost={updatePost}
-                      viewPostComments={viewPostComments}
-                      deletePost={deletePost}
-                      hidePostComments={hidePostComments}
+                      hideModal={hideModal}
+                      // updatePost={updatePost}
+                      // viewPostComments={viewPostComments}
+                      // deletePost={deletePost}
+                      // hidePostComments={hidePostComments}
                 />
                 <div className="post-comments">
                     {showCommentsState && postId["comments"].map( (comment) =>
@@ -261,9 +260,6 @@ function Posts(props) {
                               comment={comment}
                               comment={comment}
                               authorization={props.authorization}
-                              // numberOfComments={post.comments.length}
-                              // disabled={true}
-                              // showModal={showModal}
                         />)
                     }
                 </div>

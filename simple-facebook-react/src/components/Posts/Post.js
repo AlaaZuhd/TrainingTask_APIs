@@ -6,6 +6,7 @@ import "./posts.css"
 import Modal from "../Modal";
 import ChangePassword from "../Users/ChangePassword";
 import User from "../Users/User";
+import Comment from "../Comments/Comment";
 
 function Post(props) {
 
@@ -21,10 +22,14 @@ function Post(props) {
     const [postDescription, setPostDescription] = useState(props.post.description)
     const [postNumberOfComments, setPostNumberOfComments] = useState(props.numberOfComments)
     const [showComments, setShowComments] = useState(true)
+    const [showCommentsState, setShowCommentsState] = useState(false)
     const [postOwner, setPostOwner] = useState("")
     const [showPostOwnerState, setShowPostOwnerState] = useState(false)
+    const [commentState, setCommentState] = useState([])
     const [isLoading, setIsLoading] = useState(false)
-    const [serrorState, setErrorState] = useState({"errorMessage": ""})
+    const [errorState, setErrorState] = useState({"errorMessage": ""})
+
+    let comments = []
 
     const titleChangeHandler = (event) => {
         event.preventDefault()
@@ -65,27 +70,76 @@ function Post(props) {
         props.showModal(props.post)
     }
 
-    const updatePost = (event) => {
-        event.preventDefault()
-        props.updatePost(props.post)
+    // const hidePost = (event) => {
+    //     event.preventDefault()
+    //     props.hideModal(props.post)
+    // }
+
+    // const updatePost = (event) => {
+    //     event.preventDefault()
+    //     props.updatePost(props.post)
+    // }
+
+    // const viewPostComments = (event) => {
+    //     event.preventDefault()
+    //     setShowComments(false)
+    //     props.viewPostComments(props.post)
+    // }
+
+    const getComment = async (url) => {
+        try {
+            const token = localStorage.getItem("token")
+            const requestOptions = {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json', "Authorization" : "token " + token }
+            };
+            const response = await fetch(url, requestOptions)
+            if(response.status === 200 && response.ok){
+                let data = await response.json()
+                comments.push(data)
+            }
+            else {
+                throw "Invalid request to get the comment"
+            }
+        } catch(error) {
+            setErrorState({"errorMessage": error})
+        }
     }
 
-    const viewPostComments = (event) => {
-        event.preventDefault()
+    const getPostComments = async (urlsList) => {
+        try {
+            comments = []
+            setCommentState([])
+            urlsList.map(url => {
+                getComment(url)
+            })
+            setCommentState(comments)
+        } catch(error) {
+            setErrorState({"errorMessage": error})
+        }
+    }
+
+    const viewPostComments = async (value) => {
+        let urlsList = []
+        for(let i=0; i< props.post.comments.length; i++)
+            urlsList.push(props.post.comments[i])
+        getPostComments(urlsList)
         setShowComments(false)
-        props.viewPostComments(props.post)
+        setShowCommentsState(true)
+        alert(showCommentsState)
+        alert(showComments)
     }
 
-    const hidePostComments = (event) => {
+    const hidePostComments = async (event) => {
         event.preventDefault()
         setShowComments(true)
-        props.hidePostComments(props.post)
+        setShowCommentsState(false)
     }
-
-    const deletePost = (event) => {
-        event.preventDefault()
-        props.deletePost(props.post)
-    }
+    //
+    // const deletePost = (event) => {
+    //     event.preventDefault()
+    //     props.deletePost(props.post)
+    // }
 
     const getUser = async (url) => {
         try {
@@ -98,6 +152,8 @@ function Post(props) {
             const response = await fetch(url, requestOptions)
             if (response.status === 200 && response.ok) {
                 let data = await response.json()
+                console.log("from get user")
+                console.log(data)
                 setPostOwner(data)
             } else {
                 throw "Invalid request to get the user"
@@ -114,6 +170,55 @@ function Post(props) {
 
     const hidePostOwner = () => {
         setShowPostOwnerState(false)
+    }
+
+    const deletePost = async (event) => {
+        event.preventDefault()
+        const post = props.post
+        try {
+            const token = localStorage.getItem("token")
+            const requestOptions = {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json', "Authorization" : "token " + token },
+                // body: JSON.stringify({ title: post.title, description: post.description })
+            };
+            const url = "http://localhost:8000/posts/" + post.id + "/"
+            const response = await fetch(url, requestOptions)
+            if(response.status == 204 && response.ok){
+                // let data = await response.json()
+                props.hideModal(props.post)
+            }
+            else {
+                throw new Error("Invalid request to delete the post")
+            }
+        } catch(error) {
+            alert(error.message)
+            setErrorState({"errorMessage": error.message})
+        }
+    }
+
+    const updatePost = async (event) => {
+        event.preventDefault()
+        try {
+            const token = localStorage.getItem("token")
+            const requestOptions = {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json', "Authorization" : "token " + token },
+                body: JSON.stringify({ title: postTitle, description: postDescription })
+            };
+            const url = "http://localhost:8000/posts/" + props.post.id + "/"
+            const response = await fetch(url, requestOptions)
+            if(response.status === 200 && response.ok){
+                let data = await response.json()
+                props.post = data
+                // getPosts("http://localhost:8000/posts/")
+            }
+            else {
+                throw new Error("Invalid request to update the post")
+            }
+        } catch(error) {
+            setErrorState({"errorMessage": error.message})
+        }
     }
 
     useEffect(() => {
@@ -190,6 +295,16 @@ function Post(props) {
     return (
         <div className="post-page-container">
             {content}
+            <div className="post-comments">
+                {showCommentsState
+                    && commentState.map( (comment) =>
+                    <Comment key={comment.id + comment.updated_date}
+                          comment={comment}
+                          disabled={true}
+                          authorization={props.authorization}
+                    />)
+                }
+            </div>
         </div>
     );
 }

@@ -5,6 +5,7 @@ import "../../style.css"
 import {Redirect} from "react-router-dom";
 import Modal from "../Modal";
 import User from "../Users/User";
+import Post from "../Posts/Post";
 
 function Comment(props) {
 
@@ -19,11 +20,13 @@ function Comment(props) {
     const [commentContent, setCommentContent] = useState(props.comment.content)
     const [commentOwnerId, setCommentOwnerId] = useState(props.comment.owner)
     const [commentImage, setCommentImage] = useState(props.comment.image)
-    const [commentPost, setCommentPost] = useState(props.comment.post)
+    const [commentPostId, setCommentPostId] = useState(props.comment.post)
     const [editState, setEditState] = useState(false)
     const [deleteState, setDeleteState] = useState(false)
     const [commentOwner, setCommentOwner] = useState("")
+    const [commentPost, setCommentPost] = useState("")
     const [showCommentOwnerState, setShowCommentOwnerState] = useState(false)
+    const [showCommentPostState, setShowCommentPostState] = useState(false)
     const [isLoggedin, setIsLoggedin] = useState(props.authorization)
     const [isLoading, setIsLoading] = useState(false)
 
@@ -153,6 +156,28 @@ function Comment(props) {
         }
     }
 
+    const getPost = async (url) => {
+        try {
+            const token = localStorage.getItem("token")
+            const requestOptions = {
+                method: 'GET',
+                headers: {'Content-Type': 'application/json', "Authorization": "token " + token}
+            };
+            setIsLoading(true)
+            const response = await fetch(url, requestOptions)
+            if (response.status === 200 && response.ok) {
+                let data = await response.json()
+                setCommentPost(data)
+                setIsLoading(false)
+            } else {
+                throw new Error("Invalid request to get the user")
+            }
+        } catch (error) {
+            alert(error.message)
+            setErrorState({"errorMessage": error.message})
+        }
+    }
+
     const showCommentOwner = (event) => {
         event.preventDefault()
         setShowCommentOwnerState(true)
@@ -162,12 +187,23 @@ function Comment(props) {
         setShowCommentOwnerState(false)
     }
 
+    const showCommentPost = (event) => {
+        event.preventDefault()
+        setShowCommentPostState(true)
+    }
+
+    const hideCommentPost = () => {
+        setShowCommentPostState(false)
+    }
+
+
     useEffect(() => {
         if(localStorage.getItem("token"))
             setIsLoggedin(true)
         else
             setIsLoggedin(false)
         getUser('http://localhost:8000/users/' + commentOwnerId + '/')
+        getPost('http://localhost:8000/posts/' + commentPostId + '/')
     }, [])
 
     let content = (isLoggedin ?
@@ -188,7 +224,8 @@ function Comment(props) {
 
                 <div className="field-container">
                     <label htmlFor="comment_post">Post</label>
-                    <input type="number" id="comment_post" value={commentPost} placeholder="Enter the related post" required="True" onChange={postChangeHandler} disabled="true"/>
+                    <p> <a href="" onClick={showCommentPost}>{commentPost.title}</a> </p>
+                    {/*<input type="number" id="comment_post" value={commentPost} placeholder="Enter the related post" required="True" onChange={postChangeHandler} disabled="true"/>*/}
                 </div>
 
                 <div className="field-container">
@@ -213,10 +250,29 @@ function Comment(props) {
                 {editState && <button className="update-comment-btn" onClick={updateComment}>Update Comment</button>}
                 {editState && <button className="cancel-updating-comment-btn" onClick={cancelUpdating}>Cancel</button>}
             </div>
+
             {
                 showCommentOwnerState &&
                 <Modal show={showCommentOwnerState} handleCloseModal={hideCommentOwner}>
                     <User key={commentOwnerId} user={commentOwner}/>
+                </Modal>
+            }
+
+            {
+                showCommentPostState &&
+                <Modal show={showCommentPostState} handleCloseModal={hideCommentPost}>
+                    <Post key={commentPost.updated_date}
+                      post={commentPost}
+                      authorization={props.authorization}
+                      numberOfComments={commentPost.comments.length}
+                      disabled={false}
+                      showModal={showCommentPost}
+                      hideModal={hideCommentPost}
+                      // updatePost={updatePost}
+                      // viewPostComments={viewPostComments}
+                      // deletePost={deletePost}
+                      // hidePostComments={hidePostComments}
+                />
                 </Modal>
             }
         </div>
