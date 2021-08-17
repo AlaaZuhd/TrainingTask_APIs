@@ -3,10 +3,12 @@ import logo from '../../logo.svg';
 import '../App.css';
 import "../../style.css"
 import "./posts.css"
-import Modal from "../Modal";
+import Modal_ from "../Modal_";
 import ChangePassword from "../Users/ChangePassword";
 import User from "../Users/User";
 import Comment from "../Comments/Comment";
+import 'bootstrap/dist/css/bootstrap.css';
+import {Button, Card} from "react-bootstrap"
 
 function Post(props) {
 
@@ -16,13 +18,11 @@ function Post(props) {
     date = new Date(props.post.updated_date)
     formatedDate = date.getFullYear() + '-' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '-' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate()))
     const [postUpdatedDate, setPostUpdatedDate] = useState(formatedDate)
-
     const [postTitle, setPostTitle] = useState(props.post.title)
     const [postOwnerId, setPostOwnerId] = useState(props.post.owner)
     const [postDescription, setPostDescription] = useState(props.post.description)
     const [postNumberOfComments, setPostNumberOfComments] = useState(props.numberOfComments)
     const [showComments, setShowComments] = useState(true)
-    const [showCommentsState, setShowCommentsState] = useState(false)
     const [postOwner, setPostOwner] = useState("")
     const [showPostOwnerState, setShowPostOwnerState] = useState(false)
     const [commentState, setCommentState] = useState([])
@@ -38,21 +38,11 @@ function Post(props) {
             props.post.title = event.target.value
     }
 
-    const ownerChangeHandler = (event) => {
-        event.preventDefault()
-        setPostOwnerId(event.target.value)
-    }
-
     const descriptionChangeHandler = (event) => {
         event.preventDefault()
         setPostDescription(event.target.value)
         if (event.target.value.length > 0)
             props.post.description = event.target.value
-    }
-
-    const createDateChangeHandler = (event) => {
-        event.preventDefault()
-        setPostCreateDate(event.target.value)
     }
 
     const updatedDateChangeHandler = (event) => {
@@ -69,22 +59,6 @@ function Post(props) {
         event.preventDefault()
         props.showModal(props.post)
     }
-
-    // const hidePost = (event) => {
-    //     event.preventDefault()
-    //     props.hideModal(props.post)
-    // }
-
-    // const updatePost = (event) => {
-    //     event.preventDefault()
-    //     props.updatePost(props.post)
-    // }
-
-    // const viewPostComments = (event) => {
-    //     event.preventDefault()
-    //     setShowComments(false)
-    //     props.viewPostComments(props.post)
-    // }
 
     const getComment = async (url) => {
         try {
@@ -120,26 +94,17 @@ function Post(props) {
     }
 
     const viewPostComments = async (value) => {
+        setShowComments(false)
         let urlsList = []
         for(let i=0; i< props.post.comments.length; i++)
             urlsList.push(props.post.comments[i])
         getPostComments(urlsList)
-        setShowComments(false)
-        setShowCommentsState(true)
-        alert(showCommentsState)
-        alert(showComments)
     }
 
     const hidePostComments = async (event) => {
         event.preventDefault()
         setShowComments(true)
-        setShowCommentsState(false)
     }
-    //
-    // const deletePost = (event) => {
-    //     event.preventDefault()
-    //     props.deletePost(props.post)
-    // }
 
     const getUser = async (url) => {
         try {
@@ -211,7 +176,6 @@ function Post(props) {
             if(response.status === 200 && response.ok){
                 let data = await response.json()
                 props.post = data
-                // getPosts("http://localhost:8000/posts/")
             }
             else {
                 throw new Error("Invalid request to update the post")
@@ -223,67 +187,112 @@ function Post(props) {
 
     useEffect(() => {
         getUser('http://localhost:8000/users/' + postOwnerId + '/')
-    }, [])
+    }, [commentState])
+
+    let postCard = (
+        <Card className="text-center">
+            <Card.Header><h3>Post NO.{props.post.id}</h3></Card.Header>
+            <Card.Body>
+            <Card.Title className="d-flex justify-content-center">
+                <div className="field-container">
+                    <label htmlFor="post_title">Title</label>
+                    <input type="text" id="post_title" value={postTitle} placeholder="Enter the title"
+                           required="True" onChange={titleChangeHandler} disabled={props.disabled}/>
+                </div>
+                Written By: <a href="" onClick={showPostOwner}>{postOwner.user_name}</a>,
+            </Card.Title>
+            <Card.Text>
+                <div className="field-container">
+                    <label htmlFor="post_description">Description</label>
+                    <input type="text" id="post_description" value={postDescription}
+                           placeholder="Enter the description" required="True" onChange={descriptionChangeHandler}
+                           disabled={props.disabled}/>
+                </div>
+                <div className="field-container">
+                    <label htmlFor="post_number_of_comments">Number of comments on this post</label>
+                    <input type="number" id="post_number_of_comments" value={postNumberOfComments} required="True"
+                           onChange={numberOfCommentsChangeHandler} disabled="true"/>
+                </div>
+            </Card.Text>
+            {
+                props.disabled && <Button className="open-post-btn" onClick={displayPost}>Open Post</Button>
+            }
+            {
+                !props.disabled && <Button className="update-post-btn" onClick={updatePost}>Update Post</Button>
+            }
+            {
+                !props.disabled && showComments &&
+                <Button className="view-post-comments-btn" onClick={viewPostComments}>View Post Comments</Button>
+            }
+            {
+                !props.disabled && !showComments &&
+                <Button className="hide-post-comments-btn" onClick={hidePostComments}>Hide Post Comments</Button>
+            }
+            {
+                !props.disabled && <Button className="delete-post-btn" onClick={deletePost}>Delete Post</Button>
+            }
+            </Card.Body>
+            <Card.Footer className="text-muted">Created at: {postCreateDate}, Updated at: {postUpdatedDate}</Card.Footer>
+        </Card>
+    )
 
     let content = (localStorage.getItem("token") !== "" ?
             <div className="Post">
-                <h3>Post NO.{props.post.id}</h3>
-                {/*<hr />*/}
-                <form>
-                    <div className="field-container">
-                        <label htmlFor="post_title">Title</label>
-                        <input type="text" id="post_title" value={postTitle} placeholder="Enter the title"
-                               required="True" onChange={titleChangeHandler} disabled={props.disabled}/>
-                    </div>
+                {/*<h3>Post NO.{props.post.id}</h3>*/}
+                {/*<form>*/}
+                {/*    <div className="field-container">*/}
+                {/*        <label htmlFor="post_title">Title</label>*/}
+                {/*        <input type="text" id="post_title" value={postTitle} placeholder="Enter the title"*/}
+                {/*               required="True" onChange={titleChangeHandler} disabled={props.disabled}/>*/}
+                {/*    </div>*/}
 
-                    <div className="field-container">
-                        <label htmlFor="post_owner">Owner</label>
-                        <p> <a href="" onClick={showPostOwner}>{postOwner.user_name}</a> </p>
-                        {/*<input type="text" id="post_owner" value={postOwnerId} placeholder="Enter the Owner name"*/}
-                        {/*       required="True" onChange={ownerChangeHandler} disabled="true"/>*/}
-                    </div>
+                {/*    <div className="field-container">*/}
+                {/*        <label htmlFor="post_owner">Owner</label>*/}
+                {/*        <p> <a href="" onClick={showPostOwner}>{postOwner.user_name}</a> </p>*/}
+                {/*    </div>*/}
 
-                    <div className="field-container">
-                        <label htmlFor="post_description">Description</label>
-                        <input type="text" id="post_description" value={postDescription}
-                               placeholder="Enter the description" required="True" onChange={descriptionChangeHandler}
-                               disabled={props.disabled}/>
-                    </div>
+                {/*    <div className="field-container">*/}
+                {/*        <label htmlFor="post_description">Description</label>*/}
+                {/*        <input type="text" id="post_description" value={postDescription}*/}
+                {/*               placeholder="Enter the description" required="True" onChange={descriptionChangeHandler}*/}
+                {/*               disabled={props.disabled}/>*/}
+                {/*    </div>*/}
 
-                    <div className="field-container">
-                        <label htmlFor="post_create_date">Created Date</label>
-                        <input type="date" id="post_create_date" value={postCreateDate}
-                               placeholder="Enter the created date" required="True" onChange={createDateChangeHandler}
-                               disabled="true"/>
-                    </div>
+                {/*    <div className="field-container">*/}
+                {/*        <label htmlFor="post_create_date">Created Date</label>*/}
+                {/*        <input type="date" id="post_create_date" value={postCreateDate}*/}
+                {/*               placeholder="Enter the created date" required="True"*/}
+                {/*               disabled="true"/>*/}
+                {/*    </div>*/}
 
-                    <div className="field-container">
-                        <label htmlFor="post_updated_date">Updated Date</label>
-                        <input type="date" id="post_updated_date" value={postUpdatedDate} required="True"
-                               onChange={updatedDateChangeHandler} disabled="true"/>
-                    </div>
+                {/*    <div className="field-container">*/}
+                {/*        <label htmlFor="post_updated_date">Updated Date</label>*/}
+                {/*        <input type="date" id="post_updated_date" value={postUpdatedDate} required="True"*/}
+                {/*               onChange={updatedDateChangeHandler} disabled="true"/>*/}
+                {/*    </div>*/}
 
-                    <div className="field-container">
-                        <label htmlFor="post_number_of_comments">Number of comments on this post</label>
-                        <input type="number" id="post_number_of_comments" value={postNumberOfComments} required="True"
-                               onChange={numberOfCommentsChangeHandler} disabled="true"/>
-                    </div>
-                </form>
-                <div>
-                    {props.disabled && <button className="open-post-btn" onClick={displayPost}>Open Post</button>}
-                    {!props.disabled && <button className="update-post-btn" onClick={updatePost}>Update Post</button>}
-                    {!props.disabled && showComments &&
-                    <button className="view-post-comments-btn" onClick={viewPostComments}>View Post Comments</button>}
-                    {!props.disabled && !showComments &&
-                    <button className="hide-post-comments-btn" onClick={hidePostComments}>Hide Post Comments</button>}
-                    {!props.disabled && <button className="delete-post-btn" onClick={deletePost}>Delete Post</button>}
-                </div>
+                {/*    <div className="field-container">*/}
+                {/*        <label htmlFor="post_number_of_comments">Number of comments on this post</label>*/}
+                {/*        <input type="number" id="post_number_of_comments" value={postNumberOfComments} required="True"*/}
+                {/*               onChange={numberOfCommentsChangeHandler} disabled="true"/>*/}
+                {/*    </div>*/}
+                {/*</form>*/}
+                {postCard}
+                {/*<div>*/}
+                {/*    {props.disabled && <button className="open-post-btn" onClick={displayPost}>Open Post</button>}*/}
+                {/*    {!props.disabled && <button className="update-post-btn" onClick={updatePost}>Update Post</button>}*/}
+                {/*    {!props.disabled && showComments &&*/}
+                {/*    <button className="view-post-comments-btn" onClick={viewPostComments}>View Post Comments</button>}*/}
+                {/*    {!props.disabled && !showComments &&*/}
+                {/*    <button className="hide-post-comments-btn" onClick={hidePostComments}>Hide Post Comments</button>}*/}
+                {/*    {!props.disabled && <button className="delete-post-btn" onClick={deletePost}>Delete Post</button>}*/}
+                {/*</div>*/}
 
                 {
                     showPostOwnerState &&
-                    <Modal show={showPostOwnerState} handleCloseModal={hidePostOwner}>
+                    <Modal_ show={showPostOwnerState} handleCloseModal={hidePostOwner}>
                         <User key={postOwnerId} user={postOwner}/>
-                    </Modal>
+                    </Modal_>
                 }
 
             </div> :
@@ -295,16 +304,16 @@ function Post(props) {
     return (
         <div className="post-page-container">
             {content}
-            <div className="post-comments">
-                {showCommentsState
+            {<div className="post-comments">
+                {!showComments
                     && commentState.map( (comment) =>
-                    <Comment key={comment.id + comment.updated_date}
+                    <Comment key={comment.id}
                           comment={comment}
                           disabled={true}
                           authorization={props.authorization}
                     />)
                 }
-            </div>
+            </div>}
         </div>
     );
 }

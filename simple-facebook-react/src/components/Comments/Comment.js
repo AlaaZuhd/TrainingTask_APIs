@@ -3,9 +3,14 @@ import logo from '../../logo.svg';
 import '../App.css';
 import "../../style.css"
 import {Redirect} from "react-router-dom";
-import Modal from "../Modal";
+import Modal_ from "../Modal_";
 import User from "../Users/User";
 import Post from "../Posts/Post";
+
+import 'bootstrap/dist/css/bootstrap.css';
+import {Button, Card} from "react-bootstrap"
+
+import axios from "axios"
 
 function Comment(props) {
 
@@ -37,28 +42,14 @@ function Comment(props) {
             props.comment.content = event.target.value
     }
 
-    // const ownerChangeHandler = (event) => {
-    //     event.preventDefault()
-    //     setCommentOwnerId(event.target.value)
-    // }
-
     const imageChangeHandler = (event) => {
         event.preventDefault()
+        alert(event.target.value)
         setCommentImage(event.target.files[0])
         props.comment.image = event.target.files[0]
     }
 
-    const createDateChangeHandler = (event) => {
-        event.preventDefault()
-        setCommentCreateDate(event.target.value)
-    }
-
     const updatedDateChangeHandler = (event) => {
-        event.preventDefault()
-        setCommentUpdatedDate(event.target.value)
-    }
-
-    const postChangeHandler = (event) => {
         event.preventDefault()
         setCommentUpdatedDate(event.target.value)
     }
@@ -67,44 +58,67 @@ function Comment(props) {
     const updateComment = async (event) => {
         event.preventDefault()
         setEditState(false)
-        try {
-            const token = localStorage.getItem("token")
-            const requestOptions = {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json', "Authorization" : "token " + token },
-                body: JSON.stringify({'content': props.comment.content})
-            };
-            const url = "http://localhost:8000/comments/" + props.comment.id + "/"
-            const response = await fetch(url, requestOptions)
-            if(response.status === 200 && response.ok){
-                let data = await response.json()
+        let form_data = new FormData();
+        // form_data.append('image', props.comment.image, props.comment.image.name);
+        form_data.append('content', props.comment.content);
+        const url = "http://localhost:8000/comments/" + props.comment.id + "/"
+        const token = localStorage.getItem("token")
+        axios.patch(url, form_data, {
+                    headers: {
+                        'content-type': 'multipart/form-data', "Authorization" : "token " + token
+                    }
+        }).then(response => {
+              console.log(response.data);
+              if(response.status === 200 && response.ok){
+                let data = response.json()
                 date = new Date(data.updated_date)
                 dd = date.getFullYear() + '-' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '-' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate()))
                 setCommentUpdatedDate(dd)
             }
             else {
-                throw "Invalid request to update the comment"
+                throw new Error("Invalid request to update the comment")
             }
-        } catch(error) {
-            setErrorState({"errorMessage": error})
-        }
-
+            }).catch(error => {
+                setErrorState({"errorMessage": error})
+            });
     }
+        // try {
+        //     const token = localStorage.getItem("token")
+        //     const requestOptions = {
+        //         method: 'PATCH',
+        //         headers: { 'Content-Type': "multipart/form-data", "Authorization" : "token " + token },
+        //         body: fd
+        //     };
+        //     console.log(fd.get("image"))
+        //     const url = "http://localhost:8000/comments/" + props.comment.id + "/"
+        //     const response = await fetch(url, requestOptions)
+        //     alert("after fetch")
+        //     if(response.status === 200 && response.ok){
+        //         let data = await response.json()
+        //         date = new Date(data.updated_date)
+        //         dd = date.getFullYear() + '-' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '-' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate()))
+        //         setCommentUpdatedDate(dd)
+        //     }
+        //     else {
+        //         throw new Error("Invalid request to update the comment")
+        //     }
+        // } catch(error) {
+        //     console.log(error.message)
+        //     setErrorState({"errorMessage": error})
+        // }
 
     const displayComment = (event) => {
         event.preventDefault()
         setEditState(true)
-
-        // props.displayComment(props.post)
     }
 
     const cancelUpdating = (event) => {
         event.preventDefault()
         setEditState(false)
-        // props.cancelUpdatingComment(props.post)
     }
 
-    const delComment = async () => {
+    const deleteComment = async (event) => {
+        event.preventDefault()
         try {
             const token = localStorage.getItem("token")
             const requestOptions = {
@@ -115,25 +129,16 @@ function Comment(props) {
             const url = "http://localhost:8000/comments/" + props.comment.id + "/"
             const response = await fetch(url, requestOptions)
             if(response.status == 204 && response.ok){
-                // let data = await response.json()
-                // getPosts("http://localhost:8000/posts/")
+
             }
             else {
                 throw "Invalid request to delete the post"
             }
         } catch(error) {
             alert(error)
-            // setErrorState({"errorMessage": error})
+            setErrorState({"errorMessage": error})
         }
-    }
-
-    const deleteComment = (event) => {
-        event.preventDefault()
-        delComment()
-        // props.deleteComment(props.post)
         setDeleteState(true)
-        // window.location.reload(false);
-
     }
 
     const getUser = async (url) => {
@@ -202,65 +207,92 @@ function Comment(props) {
             setIsLoggedin(true)
         else
             setIsLoggedin(false)
-        getUser('http://localhost:8000/users/' + commentOwnerId + '/')
-        getPost('http://localhost:8000/posts/' + commentPostId + '/')
+        setCommentOwnerId(props.comment.owner)
+        setCommentPostId(props.comment.post)
+        if(props.comment.owner)
+            getUser('http://localhost:8000/users/' + props.comment.owner + '/')
+        if(props.comment.post)
+        getPost('http://localhost:8000/posts/' + props.comment.post + '/')
     }, [])
 
-    let content = (isLoggedin ?
-        <div className="Comment">
-            <h3>Comment NO.{props.comment.id}</h3>
-            <hr/>
-            <form>
+    let commentCard = (
+        <Card className="text-center">
+            <Card.Img variant="top" src="holder.js/100px180" />
+            <Card.Header>Comment NO.{props.comment.id}</Card.Header>
+            <Card.Body>
+            <Card.Title>Written By: <a href="" onClick={showCommentOwner}>{commentOwner.user_name}</a>,
+                        On Post: <a href="" onClick={showCommentPost}>{commentPost.title}</a>
+            </Card.Title>
+            <Card.Text>
                 <div className="field-container">
                     <label htmlFor="comment_content">Content</label>
                     <input type="text" id="comment_content" value={commentContent} placeholder="Enter the content" required="True" onChange={contentChangeHandler} disabled={!editState}/>
                 </div>
+            </Card.Text>
+            {!editState && <Button className="edit-comment-btn" onClick={displayComment}>Edit</Button>}
+            {!editState && <Button className="delete-comment-btn" onClick={deleteComment}>Delete Comment</Button>}
+            {editState && <Button className="update-comment-btn" onClick={updateComment}>Update Comment</Button>}
+            {editState && <Button className="cancel-updating-comment-btn" onClick={cancelUpdating}>Cancel</Button>}
+            </Card.Body>
+            <Card.Footer className="text-muted">Created at: {commentCreateDate}, Updated at: {commentUpdatedDate}</Card.Footer>
+        </Card>
+    )
 
-                <div className="field-container">
-                    <label htmlFor="comment_owner">Owner</label>
-                    <p> <a href="" onClick={showCommentOwner}>{commentOwner.user_name}</a> </p>
-                    {/*<input type="text" id="comment_owner" value={commentOwnerId} placeholder="Enter the Owner name" required="True" onChange={ownerChangeHandler} disabled="true"/>*/}
-                </div>
+    let content = (isLoggedin ?
+        <div className="Comment">
+            {commentCard}
+            {/*<h3>Comment NO.{props.comment.id}</h3>*/}
+            {/*<hr/>*/}
+            {/*<form>*/}
+            {/*    <div className="field-container">*/}
+            {/*        <label htmlFor="comment_content">Content</label>*/}
+            {/*        <input type="text" id="comment_content" value={commentContent} placeholder="Enter the content" required="True" onChange={contentChangeHandler} disabled={!editState}/>*/}
+            {/*    </div>*/}
 
-                <div className="field-container">
-                    <label htmlFor="comment_post">Post</label>
-                    <p> <a href="" onClick={showCommentPost}>{commentPost.title}</a> </p>
-                    {/*<input type="number" id="comment_post" value={commentPost} placeholder="Enter the related post" required="True" onChange={postChangeHandler} disabled="true"/>*/}
-                </div>
+            {/*    <div className="field-container">*/}
+            {/*        <label htmlFor="comment_owner">Owner</label>*/}
+            {/*        <p> <a href="" onClick={showCommentOwner}>{commentOwner.user_name}</a> </p>*/}
+            {/*    </div>*/}
 
-                <div className="field-container">
-                    <label htmlFor="comment_image">Image</label>
-                    {/*<img src={commentImage} />*/}
-                    <input type="file" id="comment_image" src={commentImage} placeholder="Choose an image" required="True" onChange={imageChangeHandler} disabled={!editState}/>
-                </div>
+            {/*    <div className="field-container">*/}
+            {/*        <label htmlFor="comment_post">Post</label>*/}
+            {/*        <p> <a href="" onClick={showCommentPost}>{commentPost.title}</a> </p>*/}
+            {/*    </div>*/}
 
-                <div className="field-container">
-                    <label htmlFor="comment_create_date">Created Date</label>
-                    <input type="date" id="comment_create_date" value={commentCreateDate} placeholder="Enter the created date" required="True" onChange={createDateChangeHandler} disabled="true"/>
-                </div>
+            {/*    <div className="field-container">*/}
+            {/*        <label htmlFor="comment_image">Image</label>*/}
+            {/*        <img src={commentImage} />*/}
+            {/*        <input type="file" id="comment_image" placeholder="Choose an image" required="True" onChange={imageChangeHandler} disabled={!editState}/>*/}
+            {/*    </div>*/}
 
-                <div className="field-container">
-                    <label htmlFor="comment_updated_date">Updated Date</label>
-                    <input type="date" id="comment_updated_date" value={commentUpdatedDate} required="True" onChange={updatedDateChangeHandler} disabled="true"/>
-                </div>
-            </form>
-            <div>
-                {!editState && <button className="edit-comment-btn" onClick={displayComment}>Edit</button>}
-                {!editState && <button className="delete-comment-btn" onClick={deleteComment}>Delete Comment</button>}
-                {editState && <button className="update-comment-btn" onClick={updateComment}>Update Comment</button>}
-                {editState && <button className="cancel-updating-comment-btn" onClick={cancelUpdating}>Cancel</button>}
-            </div>
+            {/*    <div className="field-container">*/}
+            {/*        <label htmlFor="comment_create_date">Created Date</label>*/}
+            {/*        <input type="date" id="comment_create_date" value={commentCreateDate} required="True" disabled="true"/>*/}
+            {/*    </div>*/}
+
+            {/*    <div className="field-container">*/}
+            {/*        <label htmlFor="comment_updated_date">Updated Date</label>*/}
+            {/*        <input type="date" id="comment_updated_date" value={commentUpdatedDate} required="True" onChange={updatedDateChangeHandler} disabled="true"/>*/}
+            {/*    </div>*/}
+            {/*</form>*/}
+            {/*<div>*/}
+            {/*    {!editState && <button className="edit-comment-btn" onClick={displayComment}>Edit</button>}*/}
+            {/*    {!editState && <button className="delete-comment-btn" onClick={deleteComment}>Delete Comment</button>}*/}
+            {/*    {editState && <button className="update-comment-btn" onClick={updateComment}>Update Comment</button>}*/}
+            {/*    {editState && <button className="cancel-updating-comment-btn" onClick={cancelUpdating}>Cancel</button>}*/}
+            {/*</div>*/}
 
             {
-                showCommentOwnerState &&
-                <Modal show={showCommentOwnerState} handleCloseModal={hideCommentOwner}>
-                    <User key={commentOwnerId} user={commentOwner}/>
-                </Modal>
+                showCommentOwnerState && <div>
+                <Modal_ show={showCommentOwnerState} handleCloseModal={hideCommentOwner}>
+                    <User key={commentOwnerId+commentContent} user={commentOwner}/>
+                </Modal_>
+                </div>
             }
 
             {
                 showCommentPostState &&
-                <Modal show={showCommentPostState} handleCloseModal={hideCommentPost}>
+                <Modal_ show={showCommentPostState} handleCloseModal={hideCommentPost}>
                     <Post key={commentPost.updated_date}
                       post={commentPost}
                       authorization={props.authorization}
@@ -268,12 +300,8 @@ function Comment(props) {
                       disabled={false}
                       showModal={showCommentPost}
                       hideModal={hideCommentPost}
-                      // updatePost={updatePost}
-                      // viewPostComments={viewPostComments}
-                      // deletePost={deletePost}
-                      // hidePostComments={hidePostComments}
                 />
-                </Modal>
+                </Modal_>
             }
         </div>
         :
@@ -281,6 +309,7 @@ function Comment(props) {
             You don't have the permissions to view the comment
         </div>
     )
+
 
     return (
         <div className="comment-page-container">

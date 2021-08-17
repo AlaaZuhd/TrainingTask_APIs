@@ -1,7 +1,7 @@
 import '../style.css'
 import './Modal.css';
 
-const Modal = (props) => {
+const Modal_ = (props) => {
     const showHideClassName = props.show ? "modal display-block" : "modal display-none";
     const handleClose = () => {
         props.handleCloseModal()
@@ -19,4 +19,4 @@ const Modal = (props) => {
     );
 };
 
-export default Modal
+export default Modal_

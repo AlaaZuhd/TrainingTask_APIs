@@ -2,7 +2,7 @@ import { useState } from 'react';
 import logo from '../../logo.svg';
 import '../App.css';
 import Login from "../Login/Login";
-
+import Error from "../Error"
 
 function Home(props) {
 
@@ -40,7 +40,7 @@ function Home(props) {
                 </a>
             </div>
         </div>:
-        <div>You are not allowed to be here, you need to login</div>
+        <Error type="Autorization" errorMessage="You are not allowed to be here, you need to login"/>
     )
 
     return (

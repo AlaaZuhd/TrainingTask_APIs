@@ -3,7 +3,7 @@ import '../App.css';
 import "../../style.css"
 import Post from "./Post.js"
 import Comment from "../Comments/Comment.js"
-import Modal from "../Modal"
+import Modal_ from "../Modal_"
 
 function Posts(props) {
 
@@ -21,19 +21,13 @@ function Posts(props) {
     const [classNameNextBtn, setClassNameNextBtn] = useState("nextBtn")
     const [modalState, setModalState] = useState({show: false})
     const [postId, setPostId] = useState(null)
-    const [commentState, setCommentState] = useState([])
     const [showCommentsState, setShowCommentsState] = useState(false)
-    const [updatedDateState, setUpdatedDateState] = useState(false)
-
     let posts = []
-    let comments = []
 
     useEffect(() => {
         if(localStorage.getItem("token"))
             getPosts('http://127.0.0.1:8000/posts/')
     }, []);
-
-
 
     useEffect( () => {
         setPrevTitle(prevBtnTitle)
@@ -93,43 +87,6 @@ function Posts(props) {
         }
     }
 
-    const getComment = async (url) => {
-        try {
-            const token = localStorage.getItem("token")
-            const requestOptions = {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json', "Authorization" : "token " + token }
-            };
-            const response = await fetch(url, requestOptions)
-            if(response.status === 200 && response.ok){
-                let data = await response.json()
-                comments.push(data)
-            }
-            else {
-                throw "Invalid request to get the comment"
-            }
-        } catch(error) {
-            setErrorState({"errorMessage": error})
-        }
-    }
-
-
-    const getPostComments = async (urlsList) => {
-        try {
-            comments = []
-            setCommentState([])
-            const token = localStorage.getItem("token")
-            urlsList.map(url => {
-                getComment(url)
-            })
-            setCommentState(comments)
-        } catch(error) {
-            setErrorState({"errorMessage": error})
-        }
-    }
-
-
-
     const getPrevPage = () => {
         if(prevPage !== null && localStorage.getItem("token") !== "" ){
             getPosts(prevPage)
@@ -142,9 +99,8 @@ function Posts(props) {
         }
     }
 
-    const opacity = "opacity: 0.20;"
-
     const hideModal = () => {
+        getPosts("http://localhost:8000/posts/")
         setModalState({ show: false });
     }
 
@@ -153,71 +109,7 @@ function Posts(props) {
         setModalState({ show: true });
     }
 
-    const updatePost = async (post) => {
-        try {
-            const token = localStorage.getItem("token")
-            const requestOptions = {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json', "Authorization" : "token " + token },
-                body: JSON.stringify({ title: post.title, description: post.description })
-            };
-            const url = "http://localhost:8000/posts/" + post.id + "/"
-            const response = await fetch(url, requestOptions)
-            if(response.status === 200 && response.ok){
-                let data = await response.json()
-                let posts = []
-                for(let i=0; i<postState.length; i++) {
-                    if (postState[i].id === data.id) {
-                        posts.push(data)
-                        setPostId(data)
-                    } else
-                        posts.push(postState[i])
-                }
-                setPostState(posts)
-                getPosts("http://localhost:8000/posts/")
-            }
-            else {
-                throw "Invalid request to update the post"
-            }
-        } catch(error) {
-            setErrorState({"errorMessage": error})
-        }
-    }
 
-    const viewPostComments = async (value) => {
-        setShowCommentsState(true)
-        let urlsList = []
-        for(let i=0; i< value.comments.length; i++)
-            urlsList.push(value.comments[i])
-        getPostComments(urlsList)
-    }
-
-    const hidePostComments = async (value) => {
-        setShowCommentsState(false)
-    }
-
-    const deletePost = async (post) => {
-        try {
-            const token = localStorage.getItem("token")
-            const requestOptions = {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json', "Authorization" : "token " + token },
-                // body: JSON.stringify({ title: post.title, description: post.description })
-            };
-            const url = "http://localhost:8000/posts/" + post.id + "/"
-            const response = await fetch(url, requestOptions)
-            if(response.status == 204 && response.ok){
-                // let data = await response.json()
-                getPosts("http://localhost:8000/posts/")
-            }
-            else {
-                throw "Invalid request to delete the post"
-            }
-        } catch(error) {
-            alert(error)
-            setErrorState({"errorMessage": error})
-        }
-    }
 
     let content = (localStorage.getItem("token") !== "" ?
         <div className="Posts">
@@ -241,7 +133,7 @@ function Posts(props) {
                     />
                 )}
             </ul>
-            {postId !== null && <Modal show={modalState.show} handleCloseModal={hideModal}>
+            {postId !== null && <Modal_ show={modalState.show} handleCloseModal={hideModal}>
                 <Post key={postId.updated_date}
                       post={postId}
                       authorization={props.authorization}
@@ -249,21 +141,17 @@ function Posts(props) {
                       disabled={false}
                       showModal={showModal}
                       hideModal={hideModal}
-                      // updatePost={updatePost}
-                      // viewPostComments={viewPostComments}
-                      // deletePost={deletePost}
-                      // hidePostComments={hidePostComments}
                 />
                 <div className="post-comments">
                     {showCommentsState && postId["comments"].map( (comment) =>
                         <Comment key={comment.id}
-                              comment={comment}
-                              comment={comment}
-                              authorization={props.authorization}
+                            comment={comment}
+                            disabled={true}
+                            authorization={props.authorization}
                         />)
                     }
                 </div>
-            </Modal>}
+            </Modal_>}
         </div>:
         <div>
             You need to login to view this page

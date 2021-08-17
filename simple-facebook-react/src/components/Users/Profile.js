@@ -33,7 +33,6 @@ function Profile(props) {
         }
     }
 
-
     useEffect(() => {
         if(localStorage.getItem("token")) {
             setIsLoggedin(true)

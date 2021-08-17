@@ -1,13 +1,16 @@
 import {useEffect, useState} from 'react';
 import '../App.css';
 import "../../style.css"
-import Modal from "../Modal";
+import Modal_ from "../Modal_";
 import Post from "../Posts/Post";
 import Comment from "../Comments/Comment";
 import ChangePassword from "./ChangePassword";
 import {Redirect} from "react-router-dom";
+import 'bootstrap/dist/css/bootstrap.css';
+import {Button, Card, ListGroup, Dropdown} from "react-bootstrap"
 
 function User(props) {
+
     let date = new Date(props.user.create_date)
     let dd = date.getFullYear() + '-' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '-' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate()))
     const [userCreateDate, setUserCreateDate] = useState(dd)
@@ -28,12 +31,9 @@ function User(props) {
     const [showChangePasswordState, setShowChangePasswordState] = useState(false)
     const [comment, setComment] = useState("")
     const [post, setPost] = useState("")
-
-    let commentsList = ''
+    const [modalState, setModalState] = useState({show: false})
+    let commentsList = ""
     let postsList = ""
-
-    // const [userPosts, setUserPosts] = useState(props.user.posts)
-    // const [userComments, setUserComments] = useState(props.user.comments)
 
     const getComment = async (url) => {
         try {
@@ -88,18 +88,13 @@ function User(props) {
 
     const showPosts = async (event) => {
         event.preventDefault()
-        getPost(event.target.href)
+        await getPost(event.target.href)
         setShowPostState(true)
     }
 
     const hidePost = (event) => {
         setShowPostState(false)
     }
-
-    // const ChangePassword = (event) => {
-    //     event.preventDefault()
-    //     setShowChangePasswordState(true)
-    // }
 
     const changePasswordUser = (event) => {
         event.preventDefault()
@@ -111,9 +106,9 @@ function User(props) {
     }
 
     if(props.user.comments)
-        commentsList = props.user.comments.map((comment) => <li><a href={comment} target="_blank" onClick={showComments}>Comment No.</a></li>)
+        commentsList = props.user.comments.map((comment) => <Dropdown.Item key={comment}><a href={comment} target="_blank" onClick={showComments}>{comment}</a></Dropdown.Item>)
     if(props.user.posts)
-        postsList = props.user.posts.map((post) => <li><a href={post} target="_blank" onClick={showPosts}> Post No. </a> </li>)
+        postsList = props.user.posts.map((post) => <Dropdown.Item key={post}><a href={post} target="_blank" onClick={showPosts}>{post}</a> </Dropdown.Item>)
 
     const [editState, setEditState] = useState(false)
     const [deleteState, setDeleteState] = useState(false)
@@ -135,11 +130,6 @@ function User(props) {
         setUserBirthdate(event.target.value)
     }
 
-    const createDateChangeHandler = (event) => {
-        event.preventDefault()
-        setUserCreateDate(event.target.value)
-    }
-
     const updatedDateChangeHandler = (event) => {
         event.preventDefault()
         setUserUpdatedDate(event.target.value)
@@ -157,12 +147,10 @@ function User(props) {
                 body: JSON.stringify({'user_name': userUsername, 'email': userEmail, 'birth_date': userBirthdate})
             };
             const url = "http://localhost:8000/users/" + props.user.id + "/"
-            alert(url)
-
             const response = await fetch(url, requestOptions)
             console.log(response)
             if(response.status === 200 && response.ok){
-                let data = await response.json() ///////////////////////////////////// update the user object or the other states in case of some problem
+                let data = await response.json()
                 date = new Date(data.updated_date)
                 dd = date.getFullYear() + '-' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '-' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate()))
                 setUserUpdatedDate(dd)
@@ -173,7 +161,6 @@ function User(props) {
         } catch(error) {
             setErrorState({"errorMessage": error})
             alert(error.message)
-            alert("catch")
         }
 
     }
@@ -201,9 +188,7 @@ function User(props) {
             const url = "http://localhost:8000/users/" + props.user.id + "/"
             const response = await fetch(url, requestOptions)
             if(response.status == 204 && response.ok){
-                alert("Account activated Successfully")
-                // let data = await response.json()
-                // console.log(data)
+                alert("Account deactivated Successfully")
             }
             else {
                 throw new Error("Invalid request to delete the selected user")
@@ -214,6 +199,15 @@ function User(props) {
         setDeleteState(true)
     }
 
+    const hideModal = () => {
+        setModalState({ show: false });
+    }
+
+    const showModal = (value) => {
+        setPost(value)
+        setModalState({ show: true });
+    }
+
 
     useEffect(() => {
         if(localStorage.getItem("token"))
@@ -222,12 +216,19 @@ function User(props) {
             setIsLoggedin(false)
     }, [])
 
-
-    let content = (isLoggedin ?
-        <div className="user">
-            <h3>User NO.{props.user.id}</h3>
-            <hr/>
-            <form>
+    let userCard = (
+        <Card className="text-center">
+            <Card.Header><h3>User Id.{props.user.id}</h3></Card.Header>
+            <Card.Body>
+            <Card.Title className="d-flex justify-content-center">
+                {/*<div className="field-container">*/}
+                {/*    <label htmlFor="post_title">Title</label>*/}
+                {/*    <input type="text" id="post_title" value={postTitle} placeholder="Enter the title"*/}
+                {/*           required="True" onChange={titleChangeHandler} disabled={props.disabled}/>*/}
+                {/*</div>*/}
+                {/*Written By: <a href="" onClick={showPostOwner}>{postOwner.user_name}</a>,*/}
+            </Card.Title>
+            <Card.Text>
                 <div className="field-container">
                     <label htmlFor="user_username">Username</label>
                     <input type="text" id="user_username" value={userUsername} placeholder="Enter the username" required="True" onChange={usernameChangeHandler} disabled={!editState}/>
@@ -242,71 +243,137 @@ function User(props) {
                     <label htmlFor="user_birthdate">Birthdate</label>
                     <input type="date" id="user_birthdate" value={userBirthdate} placeholder="Enter the birthdate" required="True" onChange={birthdateChangeHandler} disabled={!editState}/>
                 </div>
-
-                <div className="field-container">
-                    <label htmlFor="user_posts">User Posts</label>
-                    <input type="text" id="user_posts" required="True" disabled={!editState}/>
-                </div>
-
-                <div className="field-container">
-                    <label htmlFor="user_create_date">Created Date</label>
-                    <input type="date" id="user_create_date" value={userCreateDate} placeholder="Enter the created date" required="True" onChange={createDateChangeHandler} disabled="true"/>
-                </div>
-
-                <div className="field-container">
-                    <label htmlFor="user_updated_date">Updated Date</label>
-                    <input type="date" id="user_updated_date" value={userUpdatedDate} required="True" onChange={updatedDateChangeHandler} disabled="true"/>
-                </div>
-            </form>
-            <div>
-                {!editState && <button className="edit-user-btn" onClick={editUser}>Edit</button>}
-                {!editState && <button className="delete-user-btn" onClick={deleteUser}>Deactivate Account</button>}
-                {editState && <button className="update-user-btn" onClick={updateUser}>Update</button>}
-                {(editState || deleteState) && <button className="cancel-updating-deleting-user-btn" onClick={cancelUpdatingOrDeleting}>Cancel</button>}
-                {!editState && <button className="change-password-btn" onClick={changePasswordUser}>Reset Password</button>}
-            </div>
+            </Card.Text>
+            {
+                !editState && <Button className="edit-user-btn" onClick={editUser}>Edit</Button>
+            }
+            {
+                !editState && <Button className="delete-user-btn" onClick={deleteUser}>Deactivate Account</Button>
+            }
+            {
+                editState && <Button className="update-user-btn" onClick={updateUser}>Update</Button>
+            }
+            {
+                (editState || deleteState) && <Button className="cancel-updating-deleting-user-btn" onClick={cancelUpdatingOrDeleting}>Cancel</Button>
+            }
+            {
+                !editState && <Button className="change-password-btn" onClick={changePasswordUser}>Reset Password</Button>
+            }
             <br />
             <br />
-            <div>
-                Users' Posts
-                <ul>
+            {/*<h4>Users' Posts</h4>*/}
+            {/*<ListGroup variant="flush">*/}
+            {/*    {postsList}*/}
+            {/*</ListGroup>*/}
+            <Dropdown>
+                <Dropdown.Toggle variant="success" id="dropdown-basic">
+                    Users' Posts
+                </Dropdown.Toggle>
+
+                <Dropdown.Menu>
                     {postsList}
-                </ul>
-                Users' Comments
-                <ul>
+                </Dropdown.Menu>
+            </Dropdown>
+            <Dropdown>
+                <Dropdown.Toggle variant="success" id="dropdown-basic">
+                    Users' Comments
+                </Dropdown.Toggle>
+
+                <Dropdown.Menu>
                     {commentsList}
-                </ul>
-            </div>
+                </Dropdown.Menu>
+            </Dropdown>
+            </Card.Body>
+            <Card.Footer className="text-muted">Created at: {userCreateDate}, Updated at: {userUpdatedDate}</Card.Footer>
+        </Card>
+    )
+
+
+    let content = (isLoggedin ?
+        <div className="user">
+            {userCard}
+            {/*<h3>User NO.{props.user.id}</h3>*/}
+            {/*<hr/>*/}
+            {/*<form>*/}
+            {/*    <div className="field-container">*/}
+            {/*        <label htmlFor="user_username">Username</label>*/}
+            {/*        <input type="text" id="user_username" value={userUsername} placeholder="Enter the username" required="True" onChange={usernameChangeHandler} disabled={!editState}/>*/}
+            {/*    </div>*/}
+
+            {/*    <div className="field-container">*/}
+            {/*        <label htmlFor="user_email">Email</label>*/}
+            {/*        <input type="email" id="user_email" value={userEmail} placeholder="Enter the email" required="True" onChange={emailChangeHandler} disabled="true" />*/}
+            {/*    </div>*/}
+
+            {/*    <div className="field-container">*/}
+            {/*        <label htmlFor="user_birthdate">Birthdate</label>*/}
+            {/*        <input type="date" id="user_birthdate" value={userBirthdate} placeholder="Enter the birthdate" required="True" onChange={birthdateChangeHandler} disabled={!editState}/>*/}
+            {/*    </div>*/}
+
+            {/*    <div className="field-container">*/}
+            {/*        <label htmlFor="user_create_date">Created Date</label>*/}
+            {/*        <input type="date" id="user_create_date" value={userCreateDate} required="True"disabled="true"/>*/}
+            {/*    </div>*/}
+
+            {/*    <div className="field-container">*/}
+            {/*        <label htmlFor="user_updated_date">Updated Date</label>*/}
+            {/*        <input type="date" id="user_updated_date" value={userUpdatedDate} required="True" onChange={updatedDateChangeHandler} disabled="true"/>*/}
+            {/*    </div>*/}
+            {/*</form>*/}
+            {/*<div>*/}
+            {/*    {!editState && <button className="edit-user-btn" onClick={editUser}>Edit</button>}*/}
+            {/*    {!editState && <button className="delete-user-btn" onClick={deleteUser}>Deactivate Account</button>}*/}
+            {/*    {editState && <button className="update-user-btn" onClick={updateUser}>Update</button>}*/}
+            {/*    {(editState || deleteState) && <button className="cancel-updating-deleting-user-btn" onClick={cancelUpdatingOrDeleting}>Cancel</button>}*/}
+            {/*    {!editState && <button className="change-password-btn" onClick={changePasswordUser}>Reset Password</button>}*/}
+            {/*</div>*/}
+            {/*<br />*/}
+            {/*<br />*/}
+            {/*<div>*/}
+            {/*    /!*<h4>Users' Posts</h4>*!/*/}
+            {/*    /!*<ListGroup variant="flush">*!/*/}
+            {/*    /!*    {postsList}*!/*/}
+            {/*    /!*</ListGroup>*!/*/}
+            {/*    /!*<div className="posts-link-container">*!/*/}
+            {/*    /!*    <h4>Users' Posts</h4>*!/*/}
+            {/*    /!*    <ul>*!/*/}
+            {/*    /!*        <h6>{postsList}</h6>*!/*/}
+            {/*    /!*    </ul>*!/*/}
+            {/*    /!*</div>*!/*/}
+            {/*    /!*<div className="comments-link-container">*!/*/}
+            {/*    /!*    <h4>Users' Comments</h4>*!/*/}
+            {/*    /!*    <ul>*!/*/}
+            {/*    /!*        <h6>{commentsList}</h6>*!/*/}
+            {/*    /!*    </ul>*!/*/}
+            {/*    /!*</div>*!/*/}
+            {/*</div>*/}
 
              {
                 showPostState &&
-                <Modal show={showPostState} handleCloseModal={hidePost}>
-                    {/*<Post key={post.updated_date}*/}
-                    {/*    post={post}*/}
-                    {/*    authorization={true}*/}
-                    {/*    numberOfComments={post.comments.length}*/}
-                    {/*    disabled={false}*/}
-                    {/*    showModal={showModal}*/}
-                    {/*    updatePost={updatePost}*/}
-                    {/*    viewPostComments={viewPostComments}*/}
-                    {/*    deletePost={deletePost}*/}
-                    {/*    hidePostComments={hidePostComments}*/}
-                    {/*/>*/}
-                </Modal>
+                <Modal_ show={showPostState} handleCloseModal={hidePost}>
+                    <Post key={post.updated_date}
+                      post={post}
+                      authorization={props.authorization}
+                      numberOfComments={post.comments.length}
+                      disabled={false}
+                      showModal={showModal}
+                      hideModal={hideModal}
+                    />
+                </Modal_>
             }
 
             {
                 showCommentState &&
-                <Modal show={showCommentState} handleCloseModal={hideComment}>
+                <Modal_ show={showCommentState} handleCloseModal={hideComment}>
                     <Comment key={comment.updated_date} comment={comment} authorization={true} disabled={true}/>
-                </Modal>
+                </Modal_>
             }
 
             {
                 showChangePasswordState &&
-                <Modal show={showChangePasswordState} handleCloseModal={hideChangePassword}>
+                <Modal_ show={showChangePasswordState} handleCloseModal={hideChangePassword}>
                     <ChangePassword />
-                </Modal>
+                </Modal_>
             }
 
         </div>

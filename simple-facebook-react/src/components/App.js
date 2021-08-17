@@ -12,6 +12,9 @@ import {
     Switch
 } from 'react-router-dom';
 
+import 'bootstrap/dist/css/bootstrap.css';
+
+
 function App() {
 
     // const [pageState, setPageState] = useState({isLoggedIn: false, currentPage: "home"})

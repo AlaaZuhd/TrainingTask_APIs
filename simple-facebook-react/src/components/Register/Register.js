@@ -1,7 +1,5 @@
 import registerLogo from '../../images/register.png';
 import { useState } from 'react';
-import loginLogo from "../../images/login.png";
-// import { Form, Field } from 'react-advanced-form'
 
 
 function Register({history}) {
@@ -61,10 +59,6 @@ function Register({history}) {
                     window.open(data["activation link"], '_blank');
                 };
                 history.push("./login")
-                // localStorage.setItem('token', data.token)
-                // setState({loggedIn: true})
-                // redirerction = (state.loggedIn === "true" ? <Redirect to="/" /> : <Login/>)
-                // history.push("./")
             }
             else if (response.status === 500){
                 const data = await response.json()
@@ -74,17 +68,13 @@ function Register({history}) {
                 throw new Error("Entered data is invalid")
             }
         } catch(error) {
-            // let user =  {isLoggedIn: false, username: userInput.userEmail, password: userInput.userPassword, token: ""}
-            // form.setError(error)
             setErrorState({"errorMessage": error.message})
         }
     }
 
     const submitHandler = (event) => {
         event.preventDefault()
-        // detect if the user enter a valid data. (why to do validation in the backend and we will do it here too)
         registerUser(setUserInput) // create user
-        // setUserInput({userEmail: "", userPassword: ""})
     }
 
     return (

@@ -119,7 +119,7 @@ function Comments(props) {
             </div>
             <ul>
                 {commentsState.map((comment) =>
-                    <Comment key={comment.updated_date} comment={comment} authorization={props.authorization} disabled={true}/>
+                    <Comment key={comment.updated_date+ comment.id} comment={comment} authorization={props.authorization} disabled={true}/>
                 )}
             </ul>
         </div>:

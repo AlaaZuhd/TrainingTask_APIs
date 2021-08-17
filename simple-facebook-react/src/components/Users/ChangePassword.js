@@ -1,6 +1,5 @@
 import loginLogo from '../../images/login.png';
 import { useState } from 'react';
-// import { Form, Field } from 'react-advanced-form'
 import { Redirect } from "react-router-dom";
 import {
     BrowserRouter as Router,
@@ -41,9 +40,7 @@ function ChangePassword() {
             const response = await fetch('http://127.0.0.1:8000/users/change-password/', requestOptions)
             console.log(response)
             if(response.status === 200 && response.ok){
-                // const data = await response.json()
-                // console.log(data)
-                // history.push("./login") // momken login again
+
             }
             else {
                 throw "Error in changing the password"
