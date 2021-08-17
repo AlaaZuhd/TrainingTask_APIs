@@ -57,6 +57,7 @@ function Post(props) {
 
     const displayPost = (event) => {
         event.preventDefault()
+        alert("hi")
         props.showModal(props.post)
     }
 
@@ -130,6 +131,7 @@ function Post(props) {
 
     const showPostOwner = (event) => {
         event.preventDefault()
+        alert("hi from show")
         setShowPostOwnerState(true)
     }
 
@@ -201,19 +203,19 @@ function Post(props) {
                 </div>
                 Written By: <a href="" onClick={showPostOwner}>{postOwner.user_name}</a>,
             </Card.Title>
-            <Card.Text>
+            <div className="cardText">
                 <div className="field-container">
-                    <label htmlFor="post_description">Description</label>
+                    <label htmlFor="post_description"  >Description</label>
                     <input type="text" id="post_description" value={postDescription}
                            placeholder="Enter the description" required="True" onChange={descriptionChangeHandler}
                            disabled={props.disabled}/>
                 </div>
-                <div className="field-container">
-                    <label htmlFor="post_number_of_comments">Number of comments on this post</label>
-                    <input type="number" id="post_number_of_comments" value={postNumberOfComments} required="True"
-                           onChange={numberOfCommentsChangeHandler} disabled="true"/>
-                </div>
-            </Card.Text>
+                {/*<div className="field-container">*/}
+                {/*    <label htmlFor="post_number_of_comments">Number of comments on this post</label>*/}
+                {/*    <input type="number" id="post_number_of_comments" value={postNumberOfComments} required="True"*/}
+                {/*           onChange={numberOfCommentsChangeHandler} disabled="true"/>*/}
+                {/*</div>*/}
+            </div>
             {
                 props.disabled && <Button className="open-post-btn" onClick={displayPost}>Open Post</Button>
             }
@@ -290,9 +292,11 @@ function Post(props) {
 
                 {
                     showPostOwnerState &&
+                        <div>
                     <Modal_ show={showPostOwnerState} handleCloseModal={hidePostOwner}>
                         <User key={postOwnerId} user={postOwner}/>
                     </Modal_>
+                        </div>
                 }
 
             </div> :

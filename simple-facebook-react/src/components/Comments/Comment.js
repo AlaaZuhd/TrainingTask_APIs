@@ -8,7 +8,7 @@ import User from "../Users/User";
 import Post from "../Posts/Post";
 
 import 'bootstrap/dist/css/bootstrap.css';
-import {Button, Card} from "react-bootstrap"
+import {Button, Card, Row, Col} from "react-bootstrap"
 
 import axios from "axios"
 
@@ -217,18 +217,22 @@ function Comment(props) {
 
     let commentCard = (
         <Card className="text-center">
-            <Card.Img variant="top" src="holder.js/100px180" />
+            <Card.Img className="cardImage" variant="top" src={props.comment.image} width="100px" />
             <Card.Header>Comment NO.{props.comment.id}</Card.Header>
             <Card.Body>
-            <Card.Title>Written By: <a href="" onClick={showCommentOwner}>{commentOwner.user_name}</a>,
+            <Card.Title className="cardTitle">Written By: <a href="" onClick={showCommentOwner}>{commentOwner.user_name}</a>,
                         On Post: <a href="" onClick={showCommentPost}>{commentPost.title}</a>
             </Card.Title>
-            <Card.Text>
+            <div className="cardText">
                 <div className="field-container">
-                    <label htmlFor="comment_content">Content</label>
+                    <label htmlFor="">Content</label>
                     <input type="text" id="comment_content" value={commentContent} placeholder="Enter the content" required="True" onChange={contentChangeHandler} disabled={!editState}/>
                 </div>
-            </Card.Text>
+                <div className="field-container">
+                    <label htmlFor="comment_image" className={editState? "showElement": "hideElement"}>Change Image</label>
+                    <input type={editState? "file": "hidden"} id="comment_image" placeholder="Choose an image" required="True" onChange={imageChangeHandler} disabled={!editState} />
+                </div>
+            </div>
             {!editState && <Button className="edit-comment-btn" onClick={displayComment}>Edit</Button>}
             {!editState && <Button className="delete-comment-btn" onClick={deleteComment}>Delete Comment</Button>}
             {editState && <Button className="update-comment-btn" onClick={updateComment}>Update Comment</Button>}
@@ -282,12 +286,14 @@ function Comment(props) {
             {/*    {editState && <button className="cancel-updating-comment-btn" onClick={cancelUpdating}>Cancel</button>}*/}
             {/*</div>*/}
 
+
+
             {
-                showCommentOwnerState && <div>
+                showCommentOwnerState &&
+                    alert("hi again") &&
                 <Modal_ show={showCommentOwnerState} handleCloseModal={hideCommentOwner}>
                     <User key={commentOwnerId+commentContent} user={commentOwner}/>
                 </Modal_>
-                </div>
             }
 
             {

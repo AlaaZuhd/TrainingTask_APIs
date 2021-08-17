@@ -42,7 +42,7 @@ urlpatterns = [
     path('', include(user_router.urls)),
     #path('', include('Posts.urls')),
     path('', include(post_router.urls)),
-    #path('', include('Comments.urls')),
+    path('', include('Comments.urls')),
     path('', include(comment_router.urls)),
     #path('posts/<int:pk>/', include(comment_router.urls))
 

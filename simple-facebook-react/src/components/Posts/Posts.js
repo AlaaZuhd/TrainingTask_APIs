@@ -106,6 +106,7 @@ function Posts(props) {
 
     const showModal = (value) => {
         setPostId(value)
+        alert("hi again")
         setModalState({ show: true });
     }
 

@@ -24,7 +24,8 @@ ul {
     padding: 5px;
 }
 
-.field-container input, .field-container p {
+.login-cbase-container .field-container input, .login-cbase-container .field-container p,
+.register-cbase-container .field-container input, .register-cbase-container .field-container p{
     border: 0px solid #568f8f;
     border-radius: 50px;
     flex-basis: 60%;
@@ -130,4 +131,45 @@ ul {
     border-left: 5px solid #568f8f;
     padding: 5px;
     margin: 10px;
+}
+
+.cardImage {
+    max-width: 100%;
+    max-height: 200px;
+}
+
+.cardTitle {
+    text-align: left;
+}
+
+.showElement {
+    display: block;
+}
+
+.hideElement {
+    display: none;
+}
+
+.cardText input:enabled {
+    border: 1px solid #568f8f;
+    flex-basis: 60%;
+    padding: 5px;
+    background-color: #dcdcdc;
+}
+
+.cardText input:disabled {
+    flex-basis: 60%;
+    padding: 5px;
+    border: none
+    /*background-color: #dcdcdc;*/
+}
+
+.dropDownList button {
+    background-color: #568f8f;
+    color: black;
+}
+
+.dropDownList button:hover {
+    background-color: #0a4f4f;
+    color: white;
 }

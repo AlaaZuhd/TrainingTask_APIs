@@ -106,9 +106,9 @@ function User(props) {
     }
 
     if(props.user.comments)
-        commentsList = props.user.comments.map((comment) => <Dropdown.Item key={comment}><a href={comment} target="_blank" onClick={showComments}>{comment}</a></Dropdown.Item>)
+        commentsList = props.user.comments.map((comment) => <Dropdown.Item key={comment} href={comment} target="_blank" onClick={showComments}>{comment}</Dropdown.Item>)
     if(props.user.posts)
-        postsList = props.user.posts.map((post) => <Dropdown.Item key={post}><a href={post} target="_blank" onClick={showPosts}>{post}</a> </Dropdown.Item>)
+        postsList = props.user.posts.map((post) => <Dropdown.Item onClick={showPosts} key={post} href={post}>{post}</Dropdown.Item>)
 
     const [editState, setEditState] = useState(false)
     const [deleteState, setDeleteState] = useState(false)
@@ -228,7 +228,7 @@ function User(props) {
                 {/*</div>*/}
                 {/*Written By: <a href="" onClick={showPostOwner}>{postOwner.user_name}</a>,*/}
             </Card.Title>
-            <Card.Text>
+            <div className="cardText">
                 <div className="field-container">
                     <label htmlFor="user_username">Username</label>
                     <input type="text" id="user_username" value={userUsername} placeholder="Enter the username" required="True" onChange={usernameChangeHandler} disabled={!editState}/>
@@ -236,14 +236,34 @@ function User(props) {
 
                 <div className="field-container">
                     <label htmlFor="user_email">Email</label>
-                    <input type="email" id="user_email" value={userEmail} placeholder="Enter the email" required="True" onChange={emailChangeHandler} disabled="true" />
+                    <input type="email" id="user_email" value={userEmail} placeholder="Enter the email" required="True" onChange={emailChangeHandler} disabled={true} />
                 </div>
 
                 <div className="field-container">
                     <label htmlFor="user_birthdate">Birthdate</label>
                     <input type="date" id="user_birthdate" value={userBirthdate} placeholder="Enter the birthdate" required="True" onChange={birthdateChangeHandler} disabled={!editState}/>
                 </div>
-            </Card.Text>
+                <div className="d-flex justify-content-around">
+                    <Dropdown className="dropDownList">
+                        <Dropdown.Toggle variant="success" id="dropdown-basic">
+                            User's Posts
+                        </Dropdown.Toggle>
+
+                        <Dropdown.Menu>
+                            {postsList}
+                        </Dropdown.Menu>
+                    </Dropdown>
+                    <Dropdown className="dropDownList">
+                        <Dropdown.Toggle variant="success" id="dropdown-basic">
+                            User's Comments
+                        </Dropdown.Toggle>
+
+                        <Dropdown.Menu>
+                            {commentsList}
+                        </Dropdown.Menu>
+                    </Dropdown>
+                </div>
+            </div>
             {
                 !editState && <Button className="edit-user-btn" onClick={editUser}>Edit</Button>
             }
@@ -265,24 +285,6 @@ function User(props) {
             {/*<ListGroup variant="flush">*/}
             {/*    {postsList}*/}
             {/*</ListGroup>*/}
-            <Dropdown>
-                <Dropdown.Toggle variant="success" id="dropdown-basic">
-                    Users' Posts
-                </Dropdown.Toggle>
-
-                <Dropdown.Menu>
-                    {postsList}
-                </Dropdown.Menu>
-            </Dropdown>
-            <Dropdown>
-                <Dropdown.Toggle variant="success" id="dropdown-basic">
-                    Users' Comments
-                </Dropdown.Toggle>
-
-                <Dropdown.Menu>
-                    {commentsList}
-                </Dropdown.Menu>
-            </Dropdown>
             </Card.Body>
             <Card.Footer className="text-muted">Created at: {userCreateDate}, Updated at: {userUpdatedDate}</Card.Footer>
         </Card>
