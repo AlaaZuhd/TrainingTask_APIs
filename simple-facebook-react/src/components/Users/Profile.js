@@ -2,12 +2,13 @@ import {useEffect, useState} from 'react';
 import '../App.css';
 import "../../style.css"
 import User from './User'
+import checkToken from "../CheckToken";
 
 
 function Profile(props) {
 
     const [errorState, setErrorState] = useState({"errorMessage": ""})
-    const [isLoggedin, setIsLoggedin] = useState(props.authorization)
+    const [isLoggedin, setIsLoggedin] = useState(true)
     const [user, setUser] = useState("")
     const [isLoading, setIsLoading] = useState(true)
 
@@ -33,30 +34,30 @@ function Profile(props) {
         }
     }
 
-    useEffect(() => {
-        if(localStorage.getItem("token")) {
+    useEffect(async () => {
+        if(localStorage.getItem("token") && await checkToken() === true) {
             setIsLoggedin(true)
             getUser('http://localhost:8000/users/me/' )
-        }
-        else
+        } else {
             setIsLoggedin(false)
+        }
     }, [])
 
 
-    let content = (isLoggedin ?
+    let content =
         <div>
             {!isLoading && <User key={user.id} user={user} authorization={isLoggedin}/>}
             {isLoading && <p>Loading Profile ...</p>}
         </div>
-        :
+    let error =
         <div>
             You don't have the permissions to view the user.
         </div>
-    )
 
     return (
         <div className="user-page-container">
-            {content}
+            {isLoggedin && content}
+            {!isLoggedin && error}
         </div>
     );
 }

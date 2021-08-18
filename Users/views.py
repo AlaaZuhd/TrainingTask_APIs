@@ -13,6 +13,7 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_bytes, force_text, DjangoUnicodeDecodeError
 from rest_framework.views import APIView
 
+from SimpleFacebook import settings
 from .utils import user_activation_token, createActivationLink, sendActivationLinkThroughEmail, ObtainNewToken
 import SimpleFacebook.settings
 from Users.models import CustomUser
@@ -108,7 +109,28 @@ class ChangePasswordView(generics.UpdateAPIView):
             return HttpResponse(response)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+import datetime
+import pytz
+from rest_framework.authentication import TokenAuthentication, get_authorization_header
+from rest_framework.exceptions import AuthenticationFailed
+from datetime import timedelta
 
+class CheckToken(APIView):
+
+    def get(self, request, formate=None):
+        utc_now = datetime.datetime.utcnow()
+        utc_now = utc_now.replace(tzinfo=pytz.utc)
+        print(request.META.get('HTTP_AUTHORIZATION'))
+
+        authorization_header = request.META.get('HTTP_AUTHORIZATION').split(" ")
+        if len(authorization_header) != 2:
+            return HttpResponse({"message": "Invalid Token"}, status=status.HTTP_400_BAD_REQUEST)
+        token = Token.objects.get(key=authorization_header[1])
+        print(token)
+        if token.created > utc_now - timedelta(seconds=settings.TOKEN_EXPIRED_AFTER_SECONDS):
+            return HttpResponse({"Token is valid"}, status=status.HTTP_200_OK)
+        else:
+            return HttpResponse({"message": "Invalid Token"}, status=status.HTTP_400_BAD_REQUEST)
 
 class Logout(APIView):
     permission_classes = [IsAuthenticated]

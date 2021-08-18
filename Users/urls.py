@@ -10,6 +10,7 @@ urlpatterns = format_suffix_patterns([
     path('users/change-password/', views.ChangePasswordView.as_view(), name='change-password'),
     path('login', obtain_new_token , name= "login"),
     path('logout', views.Logout.as_view(), name="logout"),
+    path('check-token', views.CheckToken.as_view(), name="check-token"),
     path('activate/<uidb64>/<token>',
          views.ActivateAccountView.as_view(), name='activate'),
 

@@ -40,13 +40,13 @@ class ObtainNewToken(ObtainAuthToken):
                 token = Token.objects.create(user=user)
                 token.save()
                 #is_expired, token = token_expire_handler(token)
-                print("hi")
             response_data = {'token': token.key, 'expires_in': str(expires_in(token))}
             return HttpResponse(json.dumps(response_data), content_type="application/json")
-        print("what's happening")
         error_response = {"message": "Invalid email or password"}
         return HttpResponse(json.dumps(error_response), status=status.HTTP_400_BAD_REQUEST)
+
 obtain_new_token = ObtainNewToken.as_view()
+
 
 def expires_in(token):
 
@@ -62,11 +62,12 @@ def expires_in(token):
     # left_time = timedelta(seconds=settings.TOKEN_EXPIRED_AFTER_SECONDS) - time_elapsed
     left_time = new_datetime - a_datetime
     print("left time: " + str(left_time))
+
     return left_time
 
-# # token checker if token expired or not
-# def is_token_expired(token):
-#     return expires_in(token) < timedelta(seconds = 0)
+# token checker if token expired or not
+def is_token_expired(token):
+    return expires_in(token) < timedelta(seconds = 0)
 #
 # def token_expire_handler(token):
 #     is_expired = is_token_expired(token)

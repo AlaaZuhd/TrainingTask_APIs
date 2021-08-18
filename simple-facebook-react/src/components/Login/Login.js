@@ -1,16 +1,5 @@
 import loginLogo from '../../images/login.png';
 import { useState } from 'react';
-// import { Form, Field } from 'react-advanced-form'
-import { Redirect } from "react-router-dom";
-import {
-    BrowserRouter as Router,
-    Route,
-    Link,
-    Switch
-} from 'react-router-dom';
-import Home from "../Home/Home";
-import { useHistory } from "react-router-dom";
-
 import "../../style.css"
 
 function Login({history}) {

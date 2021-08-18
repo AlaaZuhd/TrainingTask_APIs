@@ -2,9 +2,8 @@ import { useState } from 'react';
 import React, { useEffect } from 'react';
 import { Redirect } from "react-router-dom";
 
-function Logout(props) {
+function Logout({history}) {
 
-    let isLoggedOut = false
     const loggingOutUser = async () => {
         try {
             const token = localStorage.getItem("token")
@@ -15,10 +14,12 @@ function Logout(props) {
             const response = await fetch('http://127.0.0.1:8000/logout', requestOptions)
             if(response.status === 200 || response.ok){
                 localStorage.removeItem("token")
-                isLoggedOut = true
+                alert("Logging out done successfully")
             }
             else {
-                throw "Error in logging out"
+                if(response.status === 401){
+                    alert("You already not logged in ")
+                }
             }
         } catch(error) {
             console.log(error.message)
@@ -26,19 +27,13 @@ function Logout(props) {
     }
 
     useEffect(() => {
-        if(!props.isLoggedIn)
-            loggingOutUser ()
-    }, []); // adding , [] meaning this action will be rendered once (the first rendering of this component)
-
-    useEffect(() => {
-        return () => {
-            alert("Logging out done successfully")
-        }
+        loggingOutUser()
     }, [])
 
     return (
         <div className="login-cbase-container">
             <Redirect to="./login" />
+
         </div>
     )
 }

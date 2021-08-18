@@ -1,10 +1,9 @@
 * {
     box-sizing: border-box;
+    padding: 0;
+    margin: 0;
 }
-ul {
-    padding: 0px;
-    margin: 0px
-}
+
 
 .login-cbase-container, .register-cbase-container {
     width: 60%;
@@ -19,20 +18,20 @@ ul {
 
 .field-container label {
     flex-basis: 25%;
-    border-left: 5px solid #568f8f;
+    border-left: 5px solid #19a5a5;
     text-align: left;
     padding: 5px;
 }
 
 .login-cbase-container .field-container input, .login-cbase-container .field-container p,
 .register-cbase-container .field-container input, .register-cbase-container .field-container p{
-    border: 0px solid #568f8f;
+    border: 0px solid #19a5a5;
     border-radius: 50px;
     flex-basis: 60%;
     padding: 5px;
     background-color: #dcdcdc;
-    border-left: 5px solid #568f8f;
-    border-right: 5px solid #568f8f
+    border-left: 5px solid #19a5a5;
+    border-right: 5px solid #19a5a5
 
 }
 
@@ -42,7 +41,7 @@ ul {
 
 .field-container input[type="submit"] {
     width: 100%;
-    background-color: #568f8f;
+    background-color: #19a5a5;
     flex-basis: 85%;
 }
 
@@ -61,13 +60,12 @@ ul {
     background-color: transparent;
     background-repeat: no-repeat;
     background-size: auto 20px;
-    border: 0px solid #568f8f;
+    border: 0px solid #19a5a5;
     background-position: center;
-    /*transition: 0.6s ease;*/
 }
 
 .prevBtn:hover, .nextBtn:hover {
-  border: 1px solid #568f8f;
+  border: 1px solid #0a4f4f;
 }
 
 .addOpacity {
@@ -75,12 +73,12 @@ ul {
 }
 
 .addOpacity:hover {
-    border: 0px solid #568f8f;
+    border: 0px solid #0a4f4f;
 }
 
 .Post, .Comment {
     background-color: #f2f2f2;
-    border: 2px solid #568f8f;
+    border: 2px solid #19a5a5;
     border-radius: 50px;
     margin: auto;
     overflow: hidden;
@@ -97,7 +95,6 @@ ul {
 }
 
 .Post h3 {
-    background-color: #568f8f;
     padding: 10px;
     box-sizing: border-box;
     width: 100%;
@@ -108,7 +105,7 @@ ul {
 .delete-comment-btn, .update-comment-btn, .cancel-updating-comment-btn,
 .edit-user-btn, .delete-user-btn, .update-user-btn, .cancel-updating-deleting-user-btn,
 .change-password-btn{
-    background-color: #568f8f;
+    background-color: #19a5a5;
     border-radius: 50px;
     border: none;
     margin-right: 90px;
@@ -116,11 +113,16 @@ ul {
     float: right;
 }
 
+input[type=submit]:hover {
+    border:2px solid #0a4f4f;
+}
+
+
 .posts-link-container, .comments-link-container {
     text-align: left;
     padding: 10px;
-    border-top: 5px solid #568f8f;
-    border-bottom: 5px solid #568f8f;
+    border-top: 5px solid #19a5a5;
+    border-bottom: 5px solid #19a5a5;
 }
 
 .posts-link-container ul, .comments-link-container ul {
@@ -128,14 +130,15 @@ ul {
 }
 
 .posts-link-container ul li, .comments-link-container ul li {
-    border-left: 5px solid #568f8f;
+    border-left: 5px solid #19a5a5;
     padding: 5px;
     margin: 10px;
 }
 
 .cardImage {
     max-width: 100%;
-    max-height: 200px;
+    height: 300px;
+    padding: 20%;
 }
 
 .cardTitle {
@@ -151,25 +154,62 @@ ul {
 }
 
 .cardText input:enabled {
-    border: 1px solid #568f8f;
+    border: 1px solid #19a5a5;
     flex-basis: 60%;
     padding: 5px;
-    background-color: #dcdcdc;
+    background-color: #19a5a5;
 }
 
 .cardText input:disabled {
     flex-basis: 60%;
     padding: 5px;
     border: none
-    /*background-color: #dcdcdc;*/
 }
 
 .dropDownList button {
-    background-color: #568f8f;
+    background-color: #19a5a5;
     color: black;
 }
 
 .dropDownList button:hover {
     background-color: #0a4f4f;
     color: white;
+}
+
+.dropDownList button:active, .dropDownList button:focus {
+    background-color: #0a4f4f;
+    color: white;
+}
+
+.userAvatar {
+    width: 100px;
+    height: 100px;
+    float: left;
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+
+ul {
+    width: 100%;
+}
+
+.cont {
+    width: 100%;
+    margin: auto;
+}
+
+.row {
+    padding: 2%;
+}
+
+.col {
+    height: 100%;
+}
+
+.col {
+    padding: 2%;
 }

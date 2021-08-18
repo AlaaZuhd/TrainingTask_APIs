@@ -3,12 +3,11 @@ import logo from '../../logo.svg';
 import '../App.css';
 import "../../style.css"
 import "./posts.css"
-import Modal_ from "../Modal_";
-import ChangePassword from "../Users/ChangePassword";
 import User from "../Users/User";
 import Comment from "../Comments/Comment";
 import 'bootstrap/dist/css/bootstrap.css';
-import {Button, Card} from "react-bootstrap"
+import {Button, Card, Modal} from "react-bootstrap"
+import checkToken from "../CheckToken";
 
 function Post(props) {
 
@@ -43,11 +42,6 @@ function Post(props) {
         setPostDescription(event.target.value)
         if (event.target.value.length > 0)
             props.post.description = event.target.value
-    }
-
-    const updatedDateChangeHandler = (event) => {
-        event.preventDefault()
-        setPostUpdatedDate(event.target.value)
     }
 
     const numberOfCommentsChangeHandler = (event) => {
@@ -99,12 +93,23 @@ function Post(props) {
         let urlsList = []
         for(let i=0; i< props.post.comments.length; i++)
             urlsList.push(props.post.comments[i])
-        getPostComments(urlsList)
+        if(localStorage.getItem("token") && checkToken() === true) {
+            getPostComments(urlsList)
+            setIsLoading(true)
+        } else {
+            setIsLoading(false)
+        }
     }
 
     const hidePostComments = async (event) => {
         event.preventDefault()
         setShowComments(true)
+        if(localStorage.getItem("token") && checkToken() === true) {
+            setShowComments(true)
+            setIsLoading(true)
+        } else {
+            setIsLoading(false)
+        }
     }
 
     const getUser = async (url) => {
@@ -129,14 +134,24 @@ function Post(props) {
         }
     }
 
-    const showPostOwner = (event) => {
+    const showPostOwner = async (event) => {
         event.preventDefault()
-        alert("hi from show")
-        setShowPostOwnerState(true)
+        alert("here")
+        if(localStorage.getItem("token") && await checkToken() === true) {
+            setShowPostOwnerState(true)
+            setIsLoading(true)
+        } else {
+            setIsLoading(false)
+        }
     }
 
-    const hidePostOwner = () => {
-        setShowPostOwnerState(false)
+    const hidePostOwner = async () => {
+        if(localStorage.getItem("token") && await checkToken() === true) {
+            setShowPostOwnerState(false)
+            setIsLoading(true)
+        } else {
+            setIsLoading(false)
+        }
     }
 
     const deletePost = async (event) => {
@@ -187,8 +202,13 @@ function Post(props) {
         }
     }
 
-    useEffect(() => {
-        getUser('http://localhost:8000/users/' + postOwnerId + '/')
+    useEffect(async () => {
+        if(localStorage.getItem("token") && await checkToken() === true) {
+            getUser('http://localhost:8000/users/' + postOwnerId + '/')
+            setIsLoading(true)
+        } else {
+            setIsLoading(false)
+        }
     }, [commentState])
 
     let postCard = (
@@ -210,11 +230,6 @@ function Post(props) {
                            placeholder="Enter the description" required="True" onChange={descriptionChangeHandler}
                            disabled={props.disabled}/>
                 </div>
-                {/*<div className="field-container">*/}
-                {/*    <label htmlFor="post_number_of_comments">Number of comments on this post</label>*/}
-                {/*    <input type="number" id="post_number_of_comments" value={postNumberOfComments} required="True"*/}
-                {/*           onChange={numberOfCommentsChangeHandler} disabled="true"/>*/}
-                {/*</div>*/}
             </div>
             {
                 props.disabled && <Button className="open-post-btn" onClick={displayPost}>Open Post</Button>
@@ -238,76 +253,33 @@ function Post(props) {
         </Card>
     )
 
-    let content = (localStorage.getItem("token") !== "" ?
+    let content =
             <div className="Post">
-                {/*<h3>Post NO.{props.post.id}</h3>*/}
-                {/*<form>*/}
-                {/*    <div className="field-container">*/}
-                {/*        <label htmlFor="post_title">Title</label>*/}
-                {/*        <input type="text" id="post_title" value={postTitle} placeholder="Enter the title"*/}
-                {/*               required="True" onChange={titleChangeHandler} disabled={props.disabled}/>*/}
-                {/*    </div>*/}
-
-                {/*    <div className="field-container">*/}
-                {/*        <label htmlFor="post_owner">Owner</label>*/}
-                {/*        <p> <a href="" onClick={showPostOwner}>{postOwner.user_name}</a> </p>*/}
-                {/*    </div>*/}
-
-                {/*    <div className="field-container">*/}
-                {/*        <label htmlFor="post_description">Description</label>*/}
-                {/*        <input type="text" id="post_description" value={postDescription}*/}
-                {/*               placeholder="Enter the description" required="True" onChange={descriptionChangeHandler}*/}
-                {/*               disabled={props.disabled}/>*/}
-                {/*    </div>*/}
-
-                {/*    <div className="field-container">*/}
-                {/*        <label htmlFor="post_create_date">Created Date</label>*/}
-                {/*        <input type="date" id="post_create_date" value={postCreateDate}*/}
-                {/*               placeholder="Enter the created date" required="True"*/}
-                {/*               disabled="true"/>*/}
-                {/*    </div>*/}
-
-                {/*    <div className="field-container">*/}
-                {/*        <label htmlFor="post_updated_date">Updated Date</label>*/}
-                {/*        <input type="date" id="post_updated_date" value={postUpdatedDate} required="True"*/}
-                {/*               onChange={updatedDateChangeHandler} disabled="true"/>*/}
-                {/*    </div>*/}
-
-                {/*    <div className="field-container">*/}
-                {/*        <label htmlFor="post_number_of_comments">Number of comments on this post</label>*/}
-                {/*        <input type="number" id="post_number_of_comments" value={postNumberOfComments} required="True"*/}
-                {/*               onChange={numberOfCommentsChangeHandler} disabled="true"/>*/}
-                {/*    </div>*/}
-                {/*</form>*/}
-                {postCard}
-                {/*<div>*/}
-                {/*    {props.disabled && <button className="open-post-btn" onClick={displayPost}>Open Post</button>}*/}
-                {/*    {!props.disabled && <button className="update-post-btn" onClick={updatePost}>Update Post</button>}*/}
-                {/*    {!props.disabled && showComments &&*/}
-                {/*    <button className="view-post-comments-btn" onClick={viewPostComments}>View Post Comments</button>}*/}
-                {/*    {!props.disabled && !showComments &&*/}
-                {/*    <button className="hide-post-comments-btn" onClick={hidePostComments}>Hide Post Comments</button>}*/}
-                {/*    {!props.disabled && <button className="delete-post-btn" onClick={deletePost}>Delete Post</button>}*/}
-                {/*</div>*/}
 
                 {
                     showPostOwnerState &&
-                        <div>
-                    <Modal_ show={showPostOwnerState} handleCloseModal={hidePostOwner}>
-                        <User key={postOwnerId} user={postOwner}/>
-                    </Modal_>
-                        </div>
+                    <div>
+                        <Modal show={showPostOwnerState} centered>
+                            <Modal.Body>
+                            <User key={postOwnerId} user={postOwner}/>
+                            </Modal.Body>
+                            <Modal.Footer>
+                                <Button onClick={hidePostOwner}>Close</Button>
+                            </Modal.Footer>
+                        </Modal>
+                    </div>
                 }
 
-            </div> :
+            </div>
+    let error =
             <div>
                 You need to login to view this page
             </div>
-    )
 
     return (
         <div className="post-page-container">
-            {content}
+            {isLoading && content}
+            {!isLoading && error}
             {<div className="post-comments">
                 {!showComments
                     && commentState.map( (comment) =>

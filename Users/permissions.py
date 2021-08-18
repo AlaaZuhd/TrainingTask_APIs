@@ -14,6 +14,7 @@ class IsSuperuser(permissions.BasePermission):
         #print(str(request.user.is_superuser) + "\n\n")
         return request.user.is_superuser
 
+
 class IsAuthenticated(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
@@ -21,6 +22,7 @@ class IsAuthenticated(permissions.BasePermission):
             return True;
         else:
             return rest_framework.permissions.IsAuthenticated
+
 
 class IsSuperuserForListOrPost(permissions.BasePermission):
 

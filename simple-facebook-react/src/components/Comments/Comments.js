@@ -1,10 +1,13 @@
-import {useEffect, useState} from 'react';
+import {useContext, useEffect, useState} from 'react';
 import '../App.css';
 import "../../style.css"
 import Comment from "./Comment.js"
-
+import checkToken from "../CheckToken"
+import AuthContextProvider from "../../Context/AuthContext";
 
 function Comments(props) {
+
+    // const {loggedInState} = useContext(AuthContextProvider)
 
     const [errorState, setErrorState] = useState({"errorMessage": ""})
     const [commentsState, setCommentsState] = useState([])
@@ -19,10 +22,8 @@ function Comments(props) {
     const [prevTitle, setPrevTitle] = useState("")
     const [classNamePrevBtn, setClassNamePrevBtn] = useState("prevBtn")
     const [classNameNextBtn, setClassNameNextBtn] = useState("nextBtn")
-
-
+    const [isLoggedin, setIsLoggedin] = useState(true)
     let comments = []
-    const [isLoggedin, setIsLoggedin] = useState(props.authorization)
 
     useEffect( () => {
         setPrevTitle(prevBtnTitle)
@@ -86,27 +87,33 @@ function Comments(props) {
     }
 
 
-    useEffect(() => {
-        if(localStorage.getItem("token")) {
+    useEffect(async () => {
+        if(localStorage.getItem("token") && await checkToken() === true) {
             getComments('http://127.0.0.1:8000/comments/')
             setIsLoggedin(true)
-        }
-        else setIsLoggedin(false)
+        } else
+            setIsLoggedin(false)
     }, []);
 
-    const getPrevPage = () => {
-        if(prevPage !== null && localStorage.getItem("token") !== ''){
+    const getPrevPage = async () => {
+        if(prevPage !== null && localStorage.getItem("token") !== '' && await checkToken() === true){
             getComments(prevPage)
+            setIsLoggedin(true)
+        } else {
+            setIsLoggedin(false)
         }
     }
 
-    const getNextPage = () => {
-        if(nextPage !== null && localStorage.getItem("token") !== ''){
+    const getNextPage = async () => {
+        if(nextPage !== null && localStorage.getItem("token") !== '' && await checkToken() === true){
             getComments(nextPage)
+            setIsLoggedin(true)
+        } else {
+            setIsLoggedin(false)
         }
     }
 
-    let content = (isLoggedin?
+    let content =
         <div className="Comments">
             <div>
                 <span>Comment NO.</span>
@@ -118,19 +125,21 @@ function Comments(props) {
                 <button className={classNameNextBtn} onClick={getNextPage} title={nextTitle} />
             </div>
             <ul>
-                {commentsState.map((comment) =>
-                    <Comment key={comment.updated_date+ comment.id} comment={comment} authorization={props.authorization} disabled={true}/>
-                )}
+                <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 mb-3 text-center cont">
+                    {commentsState.map((comment) =>
+                        <div className="col">
+                            <Comment key={comment.updated_date+ comment.id} comment={comment} authorization={props.authorization} disabled={true}/>
+                        </div>
+                    )}
+                </div>
             </ul>
-        </div>:
-        <div>
-            You need to login to view this page
         </div>
-    )
+        let error = <div>You need to login to view this page</div>
 
     return (
         <div>
-            {content}
+            {isLoggedin && content}
+            {!isLoggedin && error}
         </div>
     );
 }

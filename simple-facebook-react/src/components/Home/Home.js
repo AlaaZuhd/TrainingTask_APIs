@@ -3,27 +3,9 @@ import logo from '../../logo.svg';
 import '../App.css';
 import Login from "../Login/Login";
 import Error from "../Error"
+import {Button, Modal} from "react-bootstrap";
 
 function Home(props) {
-
-    const [pageState, setPageState] = useState({isLoggedIn: false, currentPage: "home"})
-    const [userState, setUserState] = useState({email: "", password: "", token: ""})
-    const LoginRequest = (loggedInData) => {
-        setPageState( {isLoggedIn: true, currentPage: "home"})
-        if(loggedInData.isLoggedIn){
-            console.log(loggedInData.isLoggedIn)
-            setUserState({...userState, email: loggedInData.userEmail, password: loggedInData.userPassword, token: loggedInData.token})
-        }
-        console.log(userState.email)
-    }
-
-    let currentPageHandler = (value) => {
-        setPageState((prevState) => {
-            return {...prevState, currentPage: value}
-        })
-        console.log(pageState.currentPage)
-    }
-    console.log(props.authorization)
 
     let content = (props.authorization ?
         <div className="App">
@@ -40,7 +22,9 @@ function Home(props) {
                 </a>
             </div>
         </div>:
-        <Error type="Autorization" errorMessage="You are not allowed to be here, you need to login"/>
+            <div>
+                <Error type="Autorization" errorMessage="You are not allowed to be here, you need to login"/>
+            </div>
     )
 
     return (

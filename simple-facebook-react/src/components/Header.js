@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {useCallback, useContext, useEffect, useState} from "react";
 import {
     BrowserRouter as Router,
     Route,
@@ -12,8 +12,7 @@ import Register from "./Register/Register";
 import Posts from "./Posts/Posts"
 import Comments from "./Comments/Comments"
 import Profile from './Users/Profile'
-import { useHistory } from "react-router-dom";
-
+import AuthContextProvider from "../Context/AuthContext";
 
 function Header() {
 
@@ -21,26 +20,9 @@ function Header() {
     const [userState, setUserState] = useState({email: "", password: "", token: ""})
 
 
-
     let logoutPageHandler = (event) => {
         setPageState({"isLoggedIn": false})
     }
-
-    // const LoginRequest = (loggedInData) => {
-    //     setPageState( {isLoggedIn: true, currentPage: "home"})
-    //     if(loggedInData.isLoggedIn){
-    //         console.log(loggedInData.isLoggedIn)
-    //         setUserState({...userState, email: loggedInData.userEmail, password: loggedInData.userPassword, token: loggedInData.token})
-    //     }
-    //     console.log(userState.email)
-    // }
-
-    // let loginOrLogout = (pageState.isLoggedIn === true ?
-    //     <Link className="me-3 py-2 text-dark text-decoration-none"
-    //        to="/logout" onClick={logoutPageHandler} >Log out</Link> :
-    //     <Link className="me-3 py-2 text-dark text-decoration-none"
-    //        to="/login" >Log in</Link>
-    // )
 
     let welcomeMessage = (pageState.isLoggedIn ?
         "Welcome You are logged in":
@@ -48,6 +30,7 @@ function Header() {
     )
 
     return (
+        <AuthContextProvider>
         <Router>
             <header>
                 <div className="d-flex flex-column flex-md-row align-items-center pb-3 mb-4 border-bottom">
@@ -84,6 +67,7 @@ function Header() {
             <Route exact path="/register" component={Register} />
 
         </Router>
+        </AuthContextProvider>
     )
 }
 

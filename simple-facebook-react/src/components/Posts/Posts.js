@@ -1,11 +1,14 @@
 import {useEffect, useState} from 'react';
 import '../App.css';
-import "../../style.css"
 import Post from "./Post.js"
 import Comment from "../Comments/Comment.js"
-import Modal_ from "../Modal_"
+import {Modal, Button} from "react-bootstrap"
+import checkToken from "../CheckToken";
+import "../../style.css"
+
 
 function Posts(props) {
+
 
     const [errorState, setErrorState] = useState({"errorMessage": ""})
     const [postState, setPostState] = useState([])
@@ -22,11 +25,17 @@ function Posts(props) {
     const [modalState, setModalState] = useState({show: false})
     const [postId, setPostId] = useState(null)
     const [showCommentsState, setShowCommentsState] = useState(false)
+    const [isLoggedin, setIsLoggedin] = useState(true)
+
     let posts = []
 
-    useEffect(() => {
-        if(localStorage.getItem("token"))
+    useEffect(async () => {
+        if(localStorage.getItem("token") && await checkToken() === true) {
             getPosts('http://127.0.0.1:8000/posts/')
+            setIsLoggedin(true)
+        } else {
+            setIsLoggedin(false)
+        }
     }, []);
 
     useEffect( () => {
@@ -87,32 +96,47 @@ function Posts(props) {
         }
     }
 
-    const getPrevPage = () => {
-        if(prevPage !== null && localStorage.getItem("token") !== "" ){
+    const getPrevPage = async () => {
+        if(prevPage !== null && localStorage.getItem("token") !== "" && await checkToken() === true){
             getPosts(prevPage)
+            setIsLoggedin(true)
+        } else {
+            setIsLoggedin(false)
         }
     }
 
-    const getNextPage = () => {
-        if(nextPage !== null && localStorage.getItem("token") !== ""){
+    const getNextPage = async() => {
+        if(nextPage !== null && localStorage.getItem("token") !== "" && await checkToken() === true){
             getPosts(nextPage)
+            setIsLoggedin(true)
+        } else {
+            setIsLoggedin(false)
         }
     }
 
-    const hideModal = () => {
-        getPosts("http://localhost:8000/posts/")
-        setModalState({ show: false });
+    const hideModal = async () => {
+        if(localStorage.getItem("token") !== "" && await checkToken() === true) {
+            getPosts("http://localhost:8000/posts/")
+            setModalState({show: false});
+            setIsLoggedin(true)
+        } else {
+            setIsLoggedin(false)
+        }
     }
 
-    const showModal = (value) => {
-        setPostId(value)
-        alert("hi again")
-        setModalState({ show: true });
+    const showModal = async (value) => {
+        if(localStorage.getItem("token") !== "" && await checkToken() === true) {
+            setPostId(value)
+            setModalState({show: true});
+            setIsLoggedin(true)
+        } else  {
+            setIsLoggedin(false)
+        }
     }
 
 
 
-    let content = (localStorage.getItem("token") !== "" ?
+    let content =
         <div className="Posts">
             <div className="d-flex align-items-center justify-content-center">
                 <span>Post NO.</span>
@@ -124,44 +148,56 @@ function Posts(props) {
                 <button className={classNameNextBtn} onClick={getNextPage} title={nextTitle}/>
             </div>
             <ul>
-                {postState.map((post) =>
-                    <Post key={post.id}
-                          post={post}
-                          authorization={props.authorization}
-                          numberOfComments={post.comments.length}
-                          disabled={true}
-                          showModal={showModal}
-                    />
-                )}
-            </ul>
-            {postId !== null && <Modal_ show={modalState.show} handleCloseModal={hideModal}>
-                <Post key={postId.updated_date}
-                      post={postId}
-                      authorization={props.authorization}
-                      numberOfComments={postId.comments.length}
-                      disabled={false}
-                      showModal={showModal}
-                      hideModal={hideModal}
-                />
-                <div className="post-comments">
-                    {showCommentsState && postId["comments"].map( (comment) =>
-                        <Comment key={comment.id}
-                            comment={comment}
-                            disabled={true}
-                            authorization={props.authorization}
-                        />)
-                    }
+                <div className="row row-cols-1 row-cols-lg-1 row-cols-xl-2 mb=2 text-center cont ">
+                    {postState.map((post) =>
+                        <div className="col">
+                            <Post key={post.id}
+                                  post={post}
+                                  authorization={props.authorization}
+                                  numberOfComments={post.comments.length}
+                                  disabled={true}
+                                  showModal={showModal}
+                            />
+                        </div>
+                    )}
                 </div>
-            </Modal_>}
-        </div>:
+            </ul>
+            {postId !== null &&
+            <Modal show={modalState.show} centered>
+                <Modal.Body>
+                    <Post key={postId.updated_date}
+                          post={postId}
+                          authorization={props.authorization}
+                          numberOfComments={postId.comments.length}
+                          disabled={false}
+                          showModal={showModal}
+                          hideModal={hideModal}
+                    />
+                    <div className="post-comments">
+                        {showCommentsState && postId["comments"].map((comment) =>
+                            <Comment key={comment.id}
+                                     comment={comment}
+                                     disabled={true}
+                                     authorization={props.authorization}
+                            />)
+                        }
+                    </div>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button onClick={hideModal}>Close</Button>
+                </Modal.Footer>
+            </Modal>
+            }
+        </div>
+    let error =
         <div>
             You need to login to view this page
         </div>
-    )
 
     return (
         <div>
-            {content}
+            {isLoggedin && content}
+            {!isLoggedin && error}
         </div>
     );
 }

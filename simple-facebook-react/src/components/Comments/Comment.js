@@ -8,7 +8,9 @@ import User from "../Users/User";
 import Post from "../Posts/Post";
 
 import 'bootstrap/dist/css/bootstrap.css';
-import {Button, Card, Row, Col} from "react-bootstrap"
+import {Button, Card, Row, Col, Modal} from "react-bootstrap"
+
+import "./stylee.css"
 
 import axios from "axios"
 
@@ -82,30 +84,6 @@ function Comment(props) {
                 setErrorState({"errorMessage": error})
             });
     }
-        // try {
-        //     const token = localStorage.getItem("token")
-        //     const requestOptions = {
-        //         method: 'PATCH',
-        //         headers: { 'Content-Type': "multipart/form-data", "Authorization" : "token " + token },
-        //         body: fd
-        //     };
-        //     console.log(fd.get("image"))
-        //     const url = "http://localhost:8000/comments/" + props.comment.id + "/"
-        //     const response = await fetch(url, requestOptions)
-        //     alert("after fetch")
-        //     if(response.status === 200 && response.ok){
-        //         let data = await response.json()
-        //         date = new Date(data.updated_date)
-        //         dd = date.getFullYear() + '-' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '-' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate()))
-        //         setCommentUpdatedDate(dd)
-        //     }
-        //     else {
-        //         throw new Error("Invalid request to update the comment")
-        //     }
-        // } catch(error) {
-        //     console.log(error.message)
-        //     setErrorState({"errorMessage": error})
-        // }
 
     const displayComment = (event) => {
         event.preventDefault()
@@ -186,6 +164,7 @@ function Comment(props) {
     const showCommentOwner = (event) => {
         event.preventDefault()
         setShowCommentOwnerState(true)
+        alert("show comment click fucntion")
     }
 
     const hideCommentOwner = () => {
@@ -221,6 +200,7 @@ function Comment(props) {
             <Card.Header>Comment NO.{props.comment.id}</Card.Header>
             <Card.Body>
             <Card.Title className="cardTitle">Written By: <a href="" onClick={showCommentOwner}>{commentOwner.user_name}</a>,
+                        <br />
                         On Post: <a href="" onClick={showCommentPost}>{commentPost.title}</a>
             </Card.Title>
             <div className="cardText">
@@ -233,94 +213,63 @@ function Comment(props) {
                     <input type={editState? "file": "hidden"} id="comment_image" placeholder="Choose an image" required="True" onChange={imageChangeHandler} disabled={!editState} />
                 </div>
             </div>
-            {!editState && <Button className="edit-comment-btn" onClick={displayComment}>Edit</Button>}
+            <div className="buttons commentCardButtons">
+            {!editState && <Button className="edit-comment-btn b" onClick={displayComment}>Edit</Button>}
             {!editState && <Button className="delete-comment-btn" onClick={deleteComment}>Delete Comment</Button>}
-            {editState && <Button className="update-comment-btn" onClick={updateComment}>Update Comment</Button>}
-            {editState && <Button className="cancel-updating-comment-btn" onClick={cancelUpdating}>Cancel</Button>}
+            {editState && <button className="update-comment-btn" onClick={updateComment}>Update Comment</button>}
+            {editState && <button className="cancel-updating-comment-btn" onClick={cancelUpdating}>Cancel</button>}
+            </div>
             </Card.Body>
             <Card.Footer className="text-muted">Created at: {commentCreateDate}, Updated at: {commentUpdatedDate}</Card.Footer>
         </Card>
     )
 
-    let content = (isLoggedin ?
+    let content =
         <div className="Comment">
             {commentCard}
-            {/*<h3>Comment NO.{props.comment.id}</h3>*/}
-            {/*<hr/>*/}
-            {/*<form>*/}
-            {/*    <div className="field-container">*/}
-            {/*        <label htmlFor="comment_content">Content</label>*/}
-            {/*        <input type="text" id="comment_content" value={commentContent} placeholder="Enter the content" required="True" onChange={contentChangeHandler} disabled={!editState}/>*/}
-            {/*    </div>*/}
-
-            {/*    <div className="field-container">*/}
-            {/*        <label htmlFor="comment_owner">Owner</label>*/}
-            {/*        <p> <a href="" onClick={showCommentOwner}>{commentOwner.user_name}</a> </p>*/}
-            {/*    </div>*/}
-
-            {/*    <div className="field-container">*/}
-            {/*        <label htmlFor="comment_post">Post</label>*/}
-            {/*        <p> <a href="" onClick={showCommentPost}>{commentPost.title}</a> </p>*/}
-            {/*    </div>*/}
-
-            {/*    <div className="field-container">*/}
-            {/*        <label htmlFor="comment_image">Image</label>*/}
-            {/*        <img src={commentImage} />*/}
-            {/*        <input type="file" id="comment_image" placeholder="Choose an image" required="True" onChange={imageChangeHandler} disabled={!editState}/>*/}
-            {/*    </div>*/}
-
-            {/*    <div className="field-container">*/}
-            {/*        <label htmlFor="comment_create_date">Created Date</label>*/}
-            {/*        <input type="date" id="comment_create_date" value={commentCreateDate} required="True" disabled="true"/>*/}
-            {/*    </div>*/}
-
-            {/*    <div className="field-container">*/}
-            {/*        <label htmlFor="comment_updated_date">Updated Date</label>*/}
-            {/*        <input type="date" id="comment_updated_date" value={commentUpdatedDate} required="True" onChange={updatedDateChangeHandler} disabled="true"/>*/}
-            {/*    </div>*/}
-            {/*</form>*/}
-            {/*<div>*/}
-            {/*    {!editState && <button className="edit-comment-btn" onClick={displayComment}>Edit</button>}*/}
-            {/*    {!editState && <button className="delete-comment-btn" onClick={deleteComment}>Delete Comment</button>}*/}
-            {/*    {editState && <button className="update-comment-btn" onClick={updateComment}>Update Comment</button>}*/}
-            {/*    {editState && <button className="cancel-updating-comment-btn" onClick={cancelUpdating}>Cancel</button>}*/}
-            {/*</div>*/}
-
-
 
             {
                 showCommentOwnerState &&
-                    alert("hi again") &&
-                <Modal_ show={showCommentOwnerState} handleCloseModal={hideCommentOwner}>
-                    <User key={commentOwnerId+commentContent} user={commentOwner}/>
-                </Modal_>
+
+                <Modal show={showCommentOwnerState} centered>
+                    <Modal.Body>
+                        <User key={commentOwnerId+commentContent} user={commentOwner}/>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button onClick={hideCommentOwner}>Close</Button>
+                    </Modal.Footer>
+                </Modal>
             }
 
             {
                 showCommentPostState &&
-                <Modal_ show={showCommentPostState} handleCloseModal={hideCommentPost}>
-                    <Post key={commentPost.updated_date}
-                      post={commentPost}
-                      authorization={props.authorization}
-                      numberOfComments={commentPost.comments.length}
-                      disabled={false}
-                      showModal={showCommentPost}
-                      hideModal={hideCommentPost}
-                />
-                </Modal_>
+                <Modal show={showCommentPostState} centered>
+                    <Modal.Body>
+                        <Post key={commentPost.updated_date}
+                              post={commentPost}
+                              authorization={props.authorization}
+                              numberOfComments={commentPost.comments.length}
+                              disabled={false}
+                              showModal={showCommentPost}
+                              hideModal={hideCommentPost}
+                        />
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button onClick={hideCommentPost}>Close</Button>
+                    </Modal.Footer>
+                </Modal>
             }
         </div>
-        :
+    let error =
         <div>
             You don't have the permissions to view the comment
         </div>
-    )
 
 
     return (
         <div className="comment-page-container">
-            {!deleteState && content}
-            {/*{deleteState && <Redirect to="./my-comments" />}*/}
+            {!deleteState && isLoggedin && content}
+            {!isLoggedin && error}
         </div>
     );
 }

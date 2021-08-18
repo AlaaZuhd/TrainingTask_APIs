@@ -1,0 +1,14 @@
+.commentCardButtons Button{
+    border: 4px solid white;
+    float: left;
+    background-color: #19a5a5;
+}
+
+.commentCardButtons Button:hover{
+    border: 4px solid white;
+    background-color: #0a4f4f;
+}
+
+.col {
+    height: 100%;
+}

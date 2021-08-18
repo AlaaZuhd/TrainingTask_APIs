@@ -1,14 +1,4 @@
-import loginLogo from '../../images/login.png';
 import { useState } from 'react';
-import { Redirect } from "react-router-dom";
-import {
-    BrowserRouter as Router,
-    Route,
-    Link,
-    Switch
-} from 'react-router-dom';
-import Home from "../Home/Home";
-import { useHistory } from "react-router-dom";
 
 import "../../style.css"
 
@@ -43,10 +33,10 @@ function ChangePassword() {
 
             }
             else {
-                throw "Error in changing the password"
+                throw new Error("Error in changing the password")
             }
         } catch(error) {
-            console.log(error)
+            console.log(error.message)
             setErrorState({"errorMessage": error.message})
         }
     }
