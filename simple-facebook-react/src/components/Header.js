@@ -12,9 +12,12 @@ import Register from "./Register/Register";
 import Posts from "./Posts/Posts"
 import Comments from "./Comments/Comments"
 import Profile from './Users/Profile'
-import AuthContextProvider from "../Context/AuthContext";
+import AuthContext from "../Context/AuthContext";
 
 function Header() {
+
+    const authContext = useContext(AuthContext)
+    let log = authContext.loggedInState
 
     const [pageState, setPageState] = useState({isLoggedIn: false, currentPage: "home"})
     const [userState, setUserState] = useState({email: "", password: "", token: ""})
@@ -24,19 +27,16 @@ function Header() {
         setPageState({"isLoggedIn": false})
     }
 
-    let welcomeMessage = (pageState.isLoggedIn ?
+    let welcomeMessage = (log?
         "Welcome You are logged in":
         "Welcome you are not logged in"
     )
 
     return (
-        <AuthContextProvider>
         <Router>
             <header>
                 <div className="d-flex flex-column flex-md-row align-items-center pb-3 mb-4 border-bottom">
                     <div className=" d-flex align-items-center ">
-                            {/*{pageState.isLoggedIn && <p>Welcome You are logged in</p>}*/}
-                            {/*{!pageState.isLoggedIn && <p>Welcome You are not logged in</p>}*/}
                         {welcomeMessage}
                     </div>
                     <nav className="d-inline-flex mt-2 mt-md-0 ms-md-auto">
@@ -48,11 +48,11 @@ function Header() {
                            to="/posts">Posts</Link>
                         <Link className="me-3 py-2 text-dark text-decoration-none"
                               to="/my-comments">My Commnets</Link>
-                        {pageState.isLoggedIn && <Link className="me-3 py-2 text-dark text-decoration-none"
+                        {log && <Link className="me-3 py-2 text-dark text-decoration-none"
                               to="/logout" onClick={logoutPageHandler} >Log out</Link>}
-                        {!pageState.isLoggedIn && <Link className="me-3 py-2 text-dark text-decoration-none"
+                        {!log && <Link className="me-3 py-2 text-dark text-decoration-none"
                               to="/login" >Log in</Link>}
-                        {!pageState.isLoggedIn && <Link className="py-2 text-dark text-decoration-none"
+                        {!log && <Link className="py-2 text-dark text-decoration-none"
                               to="/register">Register</Link>}
                     </nav>
                 </div>
@@ -67,7 +67,6 @@ function Header() {
             <Route exact path="/register" component={Register} />
 
         </Router>
-        </AuthContextProvider>
     )
 }
 

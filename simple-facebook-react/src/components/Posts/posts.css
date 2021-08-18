@@ -1,15 +1,30 @@
 
-.open-post-btn, .update-post-btn, .view-post-comments-btn, .delete-post-btn, .hide-post-comments-btn {
-    background-color: #568f8f;
-    border-radius: 50px;
-    border: none;
-    margin-right: 90px;
-    padding: 8px;
-    float: right;
+/*.open-post-btn, .update-post-btn, .view-post-comments-btn, .delete-post-btn, .hide-post-comments-btn {*/
+/*    background-color: #568f8f;*/
+/*    border-radius: 50px;*/
+/*    border: none;*/
+/*    margin-right: 90px;*/
+/*    padding: 8px;*/
+/*    float: right;*/
+/*}*/
+
+/*.post-comments {*/
+/*    margin-left: 70px;*/
+/*    border-left: 5px solid #568f8f;*/
+/*    background-color: #f2f2f2;*/
+/*}*/
+
+.postCardButtons Button{
+    border: 4px solid white;
+    float: left;
+    background-color: #19a5a5;
 }
 
-.post-comments {
-    margin-left: 70px;
-    border-left: 5px solid #568f8f;
-    background-color: #f2f2f2;
+.postCardButtons Button:hover{
+    border: 4px solid white;
+    background-color: #0a4f4f;
+}
+
+.col {
+    height: 100%;
 }

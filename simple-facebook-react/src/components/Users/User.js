@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {useContext, useEffect, useState} from 'react';
 import '../App.css';
 import "../../style.css"
 import Post from "../Posts/Post";
@@ -8,12 +8,16 @@ import {Redirect} from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.css';
 import userAvatar from "../../images/avatar.png"
 import {Button, Card, Dropdown, Modal} from "react-bootstrap"
+import AuthContext from "../../Context/AuthContext";
 
 import "../../style.css"
+import "./style.css"
 import checkToken from "../CheckToken";
 
 
 function User(props) {
+
+    const authContext = useContext(AuthContext)
 
     let date = new Date(props.user.create_date)
     let dd = date.getFullYear() + '-' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '-' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate()))
@@ -89,8 +93,10 @@ function User(props) {
         if(localStorage.getItem("token") && await checkToken() === true) {
             getComment(event.target.href)
             setShowCommentState(true)
+            setIsLoggedin(true)
         } else {
             setIsLoggedin(false)
+            authContext.setLoggedInState(false)
         }
     }
 
@@ -104,8 +110,10 @@ function User(props) {
             await getPost(event.target.href)
             setShowPostState(true)
             setIsLoggedin(true)
+            authContext.setLoggedInState(true)
         } else {
             setIsLoggedin(false)
+            authContext.setLoggedInState(false)
         }
     }
 
@@ -118,8 +126,10 @@ function User(props) {
             event.preventDefault()
             setShowChangePasswordState(true)
             setIsLoggedin(true)
+            authContext.setLoggedInState(true)
         } else {
             setIsLoggedin(false)
+            authContext.setLoggedInState(false)
         }
     }
 
@@ -220,17 +230,22 @@ function User(props) {
             setPost(value)
             setModalState({show: true});
             setIsLoggedin(true)
+            authContext.setLoggedInState(true)
         } else {
             setIsLoggedin(false)
+            authContext.setLoggedInState(false)
         }
     }
 
 
     useEffect(async () => {
-        if(localStorage.getItem("token") && await checkToken() === true)
+        if(localStorage.getItem("token") && await checkToken() === true) {
             setIsLoggedin(true)
-        else
+            authContext.setLoggedInState(true)
+        } else {
             setIsLoggedin(false)
+            authContext.setLoggedInState(false)
+        }
     }, [])
 
     let userCard = (
@@ -280,8 +295,9 @@ function User(props) {
             </div>
             <br />
             <br />
+            <div className="buttons usersCardButtons">
             {
-                !editState && <button className="edit-user-btn" onClick={editUser}>Edit</button>
+                !editState && <button className="edit-user-btn"  onClick={editUser}>Edit</button>
             }
             {
                 !editState && <button className="delete-user-btn" onClick={deleteUser}>Deactivate Account</button>
@@ -295,6 +311,7 @@ function User(props) {
             {
                 !editState && <button className="change-password-btn" onClick={changePasswordUser}>Reset Password</button>
             }
+            </div>
             <br />
             <br />
             </Card.Body>

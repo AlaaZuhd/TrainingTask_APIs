@@ -1,14 +1,15 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useState, useContext} from 'react';
 import '../App.css';
 import Post from "./Post.js"
 import Comment from "../Comments/Comment.js"
 import {Modal, Button} from "react-bootstrap"
 import checkToken from "../CheckToken";
 import "../../style.css"
-
+import AuthContext from "../../Context/AuthContext";
 
 function Posts(props) {
 
+    const authContext = useContext(AuthContext)
 
     const [errorState, setErrorState] = useState({"errorMessage": ""})
     const [postState, setPostState] = useState([])
@@ -33,8 +34,10 @@ function Posts(props) {
         if(localStorage.getItem("token") && await checkToken() === true) {
             getPosts('http://127.0.0.1:8000/posts/')
             setIsLoggedin(true)
+            authContext.setLoggedInState(true)
         } else {
             setIsLoggedin(false)
+            authContext.setLoggedInState(false)
         }
     }, []);
 
@@ -100,8 +103,10 @@ function Posts(props) {
         if(prevPage !== null && localStorage.getItem("token") !== "" && await checkToken() === true){
             getPosts(prevPage)
             setIsLoggedin(true)
+            authContext.setLoggedInState(true)
         } else {
             setIsLoggedin(false)
+            authContext.setLoggedInState(false)
         }
     }
 
@@ -109,8 +114,10 @@ function Posts(props) {
         if(nextPage !== null && localStorage.getItem("token") !== "" && await checkToken() === true){
             getPosts(nextPage)
             setIsLoggedin(true)
+            authContext.setLoggedInState(true)
         } else {
             setIsLoggedin(false)
+            authContext.setLoggedInState(false)
         }
     }
 
@@ -119,8 +126,10 @@ function Posts(props) {
             getPosts("http://localhost:8000/posts/")
             setModalState({show: false});
             setIsLoggedin(true)
+            authContext.setLoggedInState(true)
         } else {
             setIsLoggedin(false)
+            authContext.setLoggedInState(false)
         }
     }
 
@@ -129,12 +138,12 @@ function Posts(props) {
             setPostId(value)
             setModalState({show: true});
             setIsLoggedin(true)
+            authContext.setLoggedInState(true)
         } else  {
             setIsLoggedin(false)
+            authContext.setLoggedInState(false)
         }
     }
-
-
 
     let content =
         <div className="Posts">

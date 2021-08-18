@@ -3,11 +3,11 @@ import '../App.css';
 import "../../style.css"
 import Comment from "./Comment.js"
 import checkToken from "../CheckToken"
-import AuthContextProvider from "../../Context/AuthContext";
+import AuthContext from "../../Context/AuthContext";
 
 function Comments(props) {
 
-    // const {loggedInState} = useContext(AuthContextProvider)
+    const authContext = useContext(AuthContext)
 
     const [errorState, setErrorState] = useState({"errorMessage": ""})
     const [commentsState, setCommentsState] = useState([])
@@ -91,16 +91,21 @@ function Comments(props) {
         if(localStorage.getItem("token") && await checkToken() === true) {
             getComments('http://127.0.0.1:8000/comments/')
             setIsLoggedin(true)
-        } else
+            authContext.setLoggedInState(true)
+        } else {
             setIsLoggedin(false)
+            authContext.setLoggedInState(false)
+        }
     }, []);
 
     const getPrevPage = async () => {
         if(prevPage !== null && localStorage.getItem("token") !== '' && await checkToken() === true){
             getComments(prevPage)
             setIsLoggedin(true)
+            authContext.setLoggedInState(true)
         } else {
             setIsLoggedin(false)
+            authContext.setLoggedInState(false)
         }
     }
 
@@ -108,8 +113,10 @@ function Comments(props) {
         if(nextPage !== null && localStorage.getItem("token") !== '' && await checkToken() === true){
             getComments(nextPage)
             setIsLoggedin(true)
+            authContext.setLoggedInState(true)
         } else {
             setIsLoggedin(false)
+            authContext.setLoggedInState(false)
         }
     }
 

@@ -1,11 +1,13 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useState, useContext} from 'react';
 import '../App.css';
 import "../../style.css"
 import User from './User'
 import checkToken from "../CheckToken";
-
+import AuthContext from "../../Context/AuthContext";
 
 function Profile(props) {
+
+    const authContext = useContext(AuthContext)
 
     const [errorState, setErrorState] = useState({"errorMessage": ""})
     const [isLoggedin, setIsLoggedin] = useState(true)
@@ -38,8 +40,10 @@ function Profile(props) {
         if(localStorage.getItem("token") && await checkToken() === true) {
             setIsLoggedin(true)
             getUser('http://localhost:8000/users/me/' )
+            authContext.setLoggedInState(true)
         } else {
             setIsLoggedin(false)
+            authContext.setLoggedInState(false)
         }
     }, [])
 
@@ -57,7 +61,6 @@ function Profile(props) {
     return (
         <div className="user-page-container">
             {isLoggedin && content}
-            {!isLoggedin && error}
         </div>
     );
 }

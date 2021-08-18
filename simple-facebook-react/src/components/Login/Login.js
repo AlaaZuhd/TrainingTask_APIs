@@ -62,15 +62,15 @@ function Login({history}) {
                 <fieldset>
                     <legend>Login Form</legend>
                     <legend><img src={loginLogo} className="Login-logo" alt="logo" width="100px" height="100px"/></legend>
-                <div className="field-container">
+                <div className="field-container login-form">
                     <label htmlFor="login_user_email">Email</label>
                     <input type="email" id="login_user_email" value={userInput.userEmail} placeholder="Enter your email" required="True" onChange={emailChangeHandler}/>
                 </div>
-                <div className="field-container">
+                <div className="field-container login-form">
                     <label htmlFor="login_user_password">Password</label>
                     <input type="password" id="login_user_password" value={userInput.userPassword} placeholder="Enter your password" required="True" onChange={passwordChangeHandler}/>
                 </div>
-                <div className="field-container">
+                <div className="field-container login-form">
                     <input type="submit"value="Login" />
                 </div>
                 </fieldset>

@@ -1,20 +1,20 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useState, useContext} from 'react';
 import logo from '../../logo.svg';
 import '../App.css';
 import "../../style.css"
-import {Redirect} from "react-router-dom";
-import Modal_ from "../Modal_";
 import User from "../Users/User";
 import Post from "../Posts/Post";
-
 import 'bootstrap/dist/css/bootstrap.css';
 import {Button, Card, Row, Col, Modal} from "react-bootstrap"
-
+import AuthContext from "../../Context/AuthContext";
 import "./stylee.css"
 
 import axios from "axios"
+import checkToken from "../CheckToken";
 
 function Comment(props) {
+
+    const authContext = useContext(AuthContext)
 
     let date = new Date(props.comment.create_date)
     let dd = date.getFullYear() + '-' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '-' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate()))
@@ -46,7 +46,6 @@ function Comment(props) {
 
     const imageChangeHandler = (event) => {
         event.preventDefault()
-        alert(event.target.value)
         setCommentImage(event.target.files[0])
         props.comment.image = event.target.files[0]
     }
@@ -85,14 +84,27 @@ function Comment(props) {
             });
     }
 
-    const displayComment = (event) => {
+    const displayComment = async (event) => {
         event.preventDefault()
-        setEditState(true)
+        if(localStorage.getItem("token") && await checkToken() === true) {
+            setEditState(true)
+            setIsLoggedin(true)
+            authContext.setLoggedInState(true)
+        } else {
+            setIsLoggedin(false)
+            authContext.setLoggedInState(false)
+        }
     }
 
-    const cancelUpdating = (event) => {
+    const cancelUpdating = async (event) => {
         event.preventDefault()
-        setEditState(false)
+        if(localStorage.getItem("token") && await checkToken() === true) {
+            setEditState(false)
+            authContext.setLoggedInState(true)
+        } else {
+            setIsLoggedin(false)
+            authContext.setLoggedInState(false)
+        }
     }
 
     const deleteComment = async (event) => {
@@ -161,37 +173,63 @@ function Comment(props) {
         }
     }
 
-    const showCommentOwner = (event) => {
+    const showCommentOwner = async (event) => {
         event.preventDefault()
-        setShowCommentOwnerState(true)
-        alert("show comment click fucntion")
-    }
-
-    const hideCommentOwner = () => {
-        setShowCommentOwnerState(false)
-    }
-
-    const showCommentPost = (event) => {
-        event.preventDefault()
-        setShowCommentPostState(true)
-    }
-
-    const hideCommentPost = () => {
-        setShowCommentPostState(false)
-    }
-
-
-    useEffect(() => {
-        if(localStorage.getItem("token"))
-            setIsLoggedin(true)
-        else
+        if(localStorage.getItem("token") && await checkToken() === true) {
+            setShowCommentOwnerState(true)
+            authContext.setLoggedInState(true)
+        } else {
             setIsLoggedin(false)
-        setCommentOwnerId(props.comment.owner)
-        setCommentPostId(props.comment.post)
-        if(props.comment.owner)
-            getUser('http://localhost:8000/users/' + props.comment.owner + '/')
-        if(props.comment.post)
-        getPost('http://localhost:8000/posts/' + props.comment.post + '/')
+            authContext.setLoggedInState(false)
+        }
+    }
+
+    const hideCommentOwner = async () => {
+        if(localStorage.getItem("token") && await checkToken() === true) {
+            setShowCommentOwnerState(false)
+            authContext.setLoggedInState(true)
+        } else {
+            setIsLoggedin(false)
+            authContext.setLoggedInState(false)
+        }
+    }
+
+    const showCommentPost = async (event) => {
+        event.preventDefault()
+        if(localStorage.getItem("token") && await checkToken() === true) {
+            setShowCommentPostState(true)
+            authContext.setLoggedInState(true)
+        } else {
+            setIsLoggedin(false)
+            authContext.setLoggedInState(false)
+        }
+    }
+
+    const hideCommentPost = async () => {
+        if(localStorage.getItem("token") && await checkToken() === true) {
+            setShowCommentPostState(false)
+            authContext.setLoggedInState(true)
+        } else {
+            setIsLoggedin(false)
+            authContext.setLoggedInState(false)
+        }
+    }
+
+    useEffect(async () => {
+        if(localStorage.getItem("token") && await checkToken() === true) {
+            setIsLoggedin(true)
+            authContext.setLoggedInState(true)
+            setCommentOwnerId(props.comment.owner)
+            setCommentPostId(props.comment.post)
+            if(props.comment.owner)
+                getUser('http://localhost:8000/users/' + props.comment.owner + '/')
+            if(props.comment.post)
+            getPost('http://localhost:8000/posts/' + props.comment.post + '/')
+        }
+        else {
+            setIsLoggedin(false)
+            authContext.setLoggedInState(false)
+        }
     }, [])
 
     let commentCard = (
@@ -216,8 +254,8 @@ function Comment(props) {
             <div className="buttons commentCardButtons">
             {!editState && <Button className="edit-comment-btn b" onClick={displayComment}>Edit</Button>}
             {!editState && <Button className="delete-comment-btn" onClick={deleteComment}>Delete Comment</Button>}
-            {editState && <button className="update-comment-btn" onClick={updateComment}>Update Comment</button>}
-            {editState && <button className="cancel-updating-comment-btn" onClick={cancelUpdating}>Cancel</button>}
+            {editState && <Button className="update-comment-btn" onClick={updateComment}>Update Comment</Button>}
+            {editState && <Button className="cancel-updating-comment-btn" onClick={cancelUpdating}>Cancel</Button>}
             </div>
             </Card.Body>
             <Card.Footer className="text-muted">Created at: {commentCreateDate}, Updated at: {commentUpdatedDate}</Card.Footer>

@@ -12,8 +12,13 @@
 
 .field-container {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     padding: 5px;
+    width: 100%;
+}
+
+.login-form, .register-form {
+    justify-content: center;
 }
 
 .field-container label {
@@ -23,17 +28,20 @@
     padding: 5px;
 }
 
+
 .login-cbase-container .field-container input, .login-cbase-container .field-container p,
 .register-cbase-container .field-container input, .register-cbase-container .field-container p{
     border: 0px solid #19a5a5;
     border-radius: 50px;
-    flex-basis: 60%;
+    flex-basis: 65%;
     padding: 5px;
     background-color: #dcdcdc;
     border-left: 5px solid #19a5a5;
     border-right: 5px solid #19a5a5
 
 }
+
+
 
 .field-container p {
     text-align: left;
@@ -153,14 +161,14 @@ input[type=submit]:hover {
     display: none;
 }
 
-.cardText input:enabled {
+.cardText input:enabled .postTitle:enabled{
     border: 1px solid #19a5a5;
     flex-basis: 60%;
     padding: 5px;
     background-color: #19a5a5;
 }
 
-.cardText input:disabled {
+.cardText input:disabled, .postTitle:disabled {
     flex-basis: 60%;
     padding: 5px;
     border: none

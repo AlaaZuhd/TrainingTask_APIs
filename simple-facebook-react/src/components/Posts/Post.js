@@ -1,15 +1,18 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useState, useContext} from 'react';
 import logo from '../../logo.svg';
 import '../App.css';
 import "../../style.css"
-import "./posts.css"
 import User from "../Users/User";
 import Comment from "../Comments/Comment";
 import 'bootstrap/dist/css/bootstrap.css';
 import {Button, Card, Modal} from "react-bootstrap"
 import checkToken from "../CheckToken";
+import AuthContext from "../../Context/AuthContext";
+import "./posts.css"
 
 function Post(props) {
+
+    const authContext = useContext(AuthContext)
 
     let date = new Date(props.post.create_date)
     let formatedDate = date.getFullYear() + '-' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '-' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate()))
@@ -27,6 +30,7 @@ function Post(props) {
     const [commentState, setCommentState] = useState([])
     const [isLoading, setIsLoading] = useState(false)
     const [errorState, setErrorState] = useState({"errorMessage": ""})
+    const [isLoggedin, setIsLoggedin] = useState(true)
 
     let comments = []
 
@@ -51,7 +55,6 @@ function Post(props) {
 
     const displayPost = (event) => {
         event.preventDefault()
-        alert("hi")
         props.showModal(props.post)
     }
 
@@ -89,26 +92,30 @@ function Post(props) {
     }
 
     const viewPostComments = async (value) => {
-        setShowComments(false)
-        let urlsList = []
-        for(let i=0; i< props.post.comments.length; i++)
-            urlsList.push(props.post.comments[i])
-        if(localStorage.getItem("token") && checkToken() === true) {
+        if(localStorage.getItem("token") && await checkToken() === true) {
+            setShowComments(false)
+            let urlsList = []
+            for(let i=0; i< props.post.comments.length; i++)
+                urlsList.push(props.post.comments[i])
             getPostComments(urlsList)
-            setIsLoading(true)
+            setIsLoggedin(true)
+            authContext.setLoggedInState(true)
         } else {
-            setIsLoading(false)
+            setIsLoggedin(false)
+            authContext.setLoggedInState(false)
         }
     }
 
     const hidePostComments = async (event) => {
         event.preventDefault()
-        setShowComments(true)
         if(localStorage.getItem("token") && checkToken() === true) {
             setShowComments(true)
-            setIsLoading(true)
+            setShowComments(true)
+            setIsLoggedin(true)
+            authContext.setLoggedInState(true)
         } else {
-            setIsLoading(false)
+            setIsLoggedin(false)
+            authContext.setLoggedInState(false)
         }
     }
 
@@ -119,7 +126,7 @@ function Post(props) {
                 method: 'GET',
                 headers: {'Content-Type': 'application/json', "Authorization": "token " + token}
             };
-            setIsLoading(true)
+            setIsLoggedin(true)
             const response = await fetch(url, requestOptions)
             if (response.status === 200 && response.ok) {
                 let data = await response.json()
@@ -139,18 +146,22 @@ function Post(props) {
         alert("here")
         if(localStorage.getItem("token") && await checkToken() === true) {
             setShowPostOwnerState(true)
-            setIsLoading(true)
+            setIsLoggedin(true)
+            authContext.setLoggedInState(true)
         } else {
-            setIsLoading(false)
+            setIsLoggedin(false)
+            authContext.setLoggedInState(false)
         }
     }
 
     const hidePostOwner = async () => {
         if(localStorage.getItem("token") && await checkToken() === true) {
             setShowPostOwnerState(false)
-            setIsLoading(true)
+            setIsLoggedin(true)
+            authContext.setLoggedInState(true)
         } else {
-            setIsLoading(false)
+            setIsLoggedin(false)
+            authContext.setLoggedInState(false)
         }
     }
 
@@ -202,12 +213,42 @@ function Post(props) {
         }
     }
 
+    const addComment = async (event) => {
+        event.preventDefault()
+        // if(localStorage.getItem("token") && await checkToken() === true) {
+        //     try {
+        //         const token = localStorage.getItem("token")
+        //         const requestOptions = {
+        //             method: 'PATCH',
+        //             headers: {'Content-Type': 'application/json', "Authorization": "token " + token},
+        //             body: JSON.stringify({title: postTitle, description: postDescription})
+        //         };
+        //         const url = "http://localhost:8000/posts/" + props.post.id + "/"
+        //         const response = await fetch(url, requestOptions)
+        //         if (response.status === 200 && response.ok) {
+        //             let data = await response.json()
+        //             props.post = data
+        //         } else {
+        //             throw new Error("Invalid request to update the post")
+        //         }
+        //     } catch (error) {
+        //         setErrorState({"errorMessage": error.message})
+        //     }
+        //     authContext.setLoggedInState(true)
+        // } else {
+        //     setIsLoggedin(false)
+        //     authContext.setLoggedInState(false)
+        // }
+    }
+
     useEffect(async () => {
         if(localStorage.getItem("token") && await checkToken() === true) {
             getUser('http://localhost:8000/users/' + postOwnerId + '/')
-            setIsLoading(true)
+            setIsLoggedin(true)
+            authContext.setLoggedInState(true)
         } else {
-            setIsLoading(false)
+            setIsLoggedin(false)
+            authContext.setLoggedInState(false)
         }
     }, [commentState])
 
@@ -218,10 +259,17 @@ function Post(props) {
             <Card.Title className="d-flex justify-content-center">
                 <div className="field-container">
                     <label htmlFor="post_title">Title</label>
-                    <input type="text" id="post_title" value={postTitle} placeholder="Enter the title"
+                    <input type="text" id="post_title" className="postTitle" value={postTitle} placeholder="Enter the title"
                            required="True" onChange={titleChangeHandler} disabled={props.disabled}/>
                 </div>
-                Written By: <a href="" onClick={showPostOwner}>{postOwner.user_name}</a>,
+                <div className="field-container">
+                    <label htmlFor="post_owner">Written By</label>
+                    <input type="text" id="post_owner" className="postTitle" value={postOwner} placeholder="Enter the owner nme"
+                           required="True" disabled={true}/>
+                </div>
+            </Card.Title>
+            <Card.Title className="d-flex justify-content-center">
+                <div className="field-container">Written By: <a href="" onClick={showPostOwner}>{postOwner.user_name}</a></div>
             </Card.Title>
             <div className="cardText">
                 <div className="field-container">
@@ -230,7 +278,8 @@ function Post(props) {
                            placeholder="Enter the description" required="True" onChange={descriptionChangeHandler}
                            disabled={props.disabled}/>
                 </div>
-            </div>
+            </div >
+            <div className="buttons postCardButtons">
             {
                 props.disabled && <Button className="open-post-btn" onClick={displayPost}>Open Post</Button>
             }
@@ -246,8 +295,13 @@ function Post(props) {
                 <Button className="hide-post-comments-btn" onClick={hidePostComments}>Hide Post Comments</Button>
             }
             {
+                !props.disabled && showComments &&
+                <Button className="add-post-comments-btn" onClick={addComment}>Add Comment</Button>
+            }
+            {
                 !props.disabled && <Button className="delete-post-btn" onClick={deletePost}>Delete Post</Button>
             }
+            </div>
             </Card.Body>
             <Card.Footer className="text-muted">Created at: {postCreateDate}, Updated at: {postUpdatedDate}</Card.Footer>
         </Card>
@@ -255,7 +309,7 @@ function Post(props) {
 
     let content =
             <div className="Post">
-
+                {postCard}
                 {
                     showPostOwnerState &&
                     <div>
@@ -278,8 +332,8 @@ function Post(props) {
 
     return (
         <div className="post-page-container">
-            {isLoading && content}
-            {!isLoading && error}
+            {isLoggedin && content}
+            {!isLoggedin && error}
             {<div className="post-comments">
                 {!showComments
                     && commentState.map( (comment) =>

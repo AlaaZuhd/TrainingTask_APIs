@@ -83,27 +83,27 @@ function Register({history}) {
                 <fieldset>
                     <legend>Register Form</legend>
                     <legend><img src={registerLogo} className="register-logo" alt="register logo" width="100px" height="100px"/></legend>
-                <div className="field-container">
+                <div className="field-container register-form">
                     <label htmlFor="login_user_username">User Name</label>
                     <input type="text" id="login_user_username" value={userInput.userUsername} placeholder="Enter your username" required="True" onChange={usernameChangeHandler}/>
                 </div>
 
-                <div className="field-container">
+                <div className="field-container register-form">
                     <label htmlFor="login_user_email">Email</label>
                     <input type="email" id="login_user_email" value={userInput.userEmail} placeholder="Enter your email" required="True" onChange={emailChangeHandler}/>
                 </div>
 
-                <div className="field-container">
+                <div className="field-container register-form">
                     <label htmlFor="login_user_password">Password</label>
                     <input type="password" id="login_user_password" value={userInput.userPassword} placeholder="Enter your password" required="True" onChange={passwordChangeHandler}/>
                 </div>
 
-                <div className="field-container">
+                <div className="field-container register-form">
                     <label htmlFor="login_user_birthdate">Birth Date</label>
                     <input type="date" id="login_user_birthdate" value={userInput.userBirthdate} placeholder="Enter your birth date" required="True" onChange={birthdateChangeHandler}/>
                 </div>
 
-                <div className="field-container">
+                <div className="field-container register-form">
                     <input type="submit"value="Register" />
                 </div>
             </fieldset>
