@@ -1,8 +1,11 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import React, { useEffect } from 'react';
 import { Redirect } from "react-router-dom";
+import AuthContext from "../../Context/AuthContext";
 
 function Logout({history}) {
+
+    const authContext = useContext(AuthContext)
 
     const loggingOutUser = async () => {
         try {
@@ -15,14 +18,17 @@ function Logout({history}) {
             if(response.status === 200 || response.ok){
                 localStorage.removeItem("token")
                 alert("Logging out done successfully")
+                authContext.setLoggedInState(false)
             }
             else {
                 if(response.status === 401){
                     alert("You already not logged in ")
+                    authContext.setLoggedInState(false)
                 }
             }
         } catch(error) {
             console.log(error.message)
+            authContext.setLoggedInState(false)
         }
     }
 
@@ -33,7 +39,6 @@ function Logout({history}) {
     return (
         <div className="login-cbase-container">
             <Redirect to="./login" />
-
         </div>
     )
 }

@@ -23,7 +23,7 @@ const AuthContext = createContext({
 })
 
 export const AuthContextProvider = (props) => {
-    const [loggedInState, setLoggedInState] = useState(true)
+    const [loggedInState, setLoggedInState] = useState(false)
 
     const loggInStateHandler = (value) => {
         setLoggedInState(value)

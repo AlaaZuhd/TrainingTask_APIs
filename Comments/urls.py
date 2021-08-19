@@ -8,5 +8,5 @@ urlpatterns = [
     #path('comments/', views.CommentList.as_view(), name= 'comment-list'),
     # path('comments/me/', views.CommentList.as_view(), name='comment-list'),
     #path('comments/<int:pk>/', views.CommentDetail.as_view(), name='comment-detail'),
-    #path("posts/<int:pk>/comments/", views.CommentList.as_view(), name= 'comment-list')
+    # path("posts/<int:pk>/comments/", views.CommentList.as_view(), name= 'comment-list')
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

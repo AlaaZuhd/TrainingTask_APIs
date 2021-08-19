@@ -6,6 +6,7 @@ import {Modal, Button} from "react-bootstrap"
 import checkToken from "../CheckToken";
 import "../../style.css"
 import AuthContext from "../../Context/AuthContext";
+import Error from "../Error";
 
 function Posts(props) {
 
@@ -26,17 +27,14 @@ function Posts(props) {
     const [modalState, setModalState] = useState({show: false})
     const [postId, setPostId] = useState(null)
     const [showCommentsState, setShowCommentsState] = useState(false)
-    const [isLoggedin, setIsLoggedin] = useState(true)
 
     let posts = []
 
     useEffect(async () => {
         if(localStorage.getItem("token") && await checkToken() === true) {
             getPosts('http://127.0.0.1:8000/posts/')
-            setIsLoggedin(true)
             authContext.setLoggedInState(true)
         } else {
-            setIsLoggedin(false)
             authContext.setLoggedInState(false)
         }
     }, []);
@@ -102,10 +100,8 @@ function Posts(props) {
     const getPrevPage = async () => {
         if(prevPage !== null && localStorage.getItem("token") !== "" && await checkToken() === true){
             getPosts(prevPage)
-            setIsLoggedin(true)
             authContext.setLoggedInState(true)
         } else {
-            setIsLoggedin(false)
             authContext.setLoggedInState(false)
         }
     }
@@ -113,10 +109,8 @@ function Posts(props) {
     const getNextPage = async() => {
         if(nextPage !== null && localStorage.getItem("token") !== "" && await checkToken() === true){
             getPosts(nextPage)
-            setIsLoggedin(true)
             authContext.setLoggedInState(true)
         } else {
-            setIsLoggedin(false)
             authContext.setLoggedInState(false)
         }
     }
@@ -125,10 +119,8 @@ function Posts(props) {
         if(localStorage.getItem("token") !== "" && await checkToken() === true) {
             getPosts("http://localhost:8000/posts/")
             setModalState({show: false});
-            setIsLoggedin(true)
             authContext.setLoggedInState(true)
         } else {
-            setIsLoggedin(false)
             authContext.setLoggedInState(false)
         }
     }
@@ -137,10 +129,8 @@ function Posts(props) {
         if(localStorage.getItem("token") !== "" && await checkToken() === true) {
             setPostId(value)
             setModalState({show: true});
-            setIsLoggedin(true)
             authContext.setLoggedInState(true)
         } else  {
-            setIsLoggedin(false)
             authContext.setLoggedInState(false)
         }
     }
@@ -193,20 +183,23 @@ function Posts(props) {
                     </div>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button onClick={hideModal}>Close</Button>
+                    <Button onClick={hideModal} className="BTN">Close</Button>
                 </Modal.Footer>
             </Modal>
             }
         </div>
-    let error =
-        <div>
-            You need to login to view this page
-        </div>
 
     return (
         <div>
-            {isLoggedin && content}
-            {!isLoggedin && error}
+            {authContext.loggedInState && content}
+            {
+                !authContext.loggedInState
+                &&
+                <div>
+                    <Error type="Autorization" errorMessage="You are not allowed to be here, you need to login"/>
+                </div>
+
+            }
         </div>
     );
 }

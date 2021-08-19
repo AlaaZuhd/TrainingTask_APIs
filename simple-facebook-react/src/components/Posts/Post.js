@@ -1,14 +1,15 @@
 import {useEffect, useState, useContext} from 'react';
-import logo from '../../logo.svg';
-import '../App.css';
-import "../../style.css"
 import User from "../Users/User";
 import Comment from "../Comments/Comment";
 import 'bootstrap/dist/css/bootstrap.css';
 import {Button, Card, Modal} from "react-bootstrap"
 import checkToken from "../CheckToken";
 import AuthContext from "../../Context/AuthContext";
+import '../App.css';
+import "../../style.css"
 import "./posts.css"
+import Error from "../Error";
+import axios from "axios";
 
 function Post(props) {
 
@@ -30,8 +31,9 @@ function Post(props) {
     const [commentState, setCommentState] = useState([])
     const [isLoading, setIsLoading] = useState(false)
     const [errorState, setErrorState] = useState({"errorMessage": ""})
-    const [isLoggedin, setIsLoggedin] = useState(true)
-
+    const [commentContent, setCommentContent] = useState("")
+    const [commentImage, setCommentImage] = useState()
+    const [doesImageChanged, setDoesImageChanged] = useState(false)
     let comments = []
 
     const titleChangeHandler = (event) => {
@@ -48,10 +50,18 @@ function Post(props) {
             props.post.description = event.target.value
     }
 
-    const numberOfCommentsChangeHandler = (event) => {
+    const contentChangeHandler = (event) => {
         event.preventDefault()
-        setPostNumberOfComments(event.target.value)
+        if(event.target.value.length > 0)
+            setCommentContent(event.target.value)
     }
+
+    const imageChangeHandler = (event) => {
+        event.preventDefault()
+        setCommentImage(event.target.files[0])
+        setDoesImageChanged(event.target.files[0])
+    }
+
 
     const displayPost = (event) => {
         event.preventDefault()
@@ -98,10 +108,8 @@ function Post(props) {
             for(let i=0; i< props.post.comments.length; i++)
                 urlsList.push(props.post.comments[i])
             getPostComments(urlsList)
-            setIsLoggedin(true)
             authContext.setLoggedInState(true)
         } else {
-            setIsLoggedin(false)
             authContext.setLoggedInState(false)
         }
     }
@@ -111,10 +119,8 @@ function Post(props) {
         if(localStorage.getItem("token") && checkToken() === true) {
             setShowComments(true)
             setShowComments(true)
-            setIsLoggedin(true)
             authContext.setLoggedInState(true)
         } else {
-            setIsLoggedin(false)
             authContext.setLoggedInState(false)
         }
     }
@@ -126,7 +132,6 @@ function Post(props) {
                 method: 'GET',
                 headers: {'Content-Type': 'application/json', "Authorization": "token " + token}
             };
-            setIsLoggedin(true)
             const response = await fetch(url, requestOptions)
             if (response.status === 200 && response.ok) {
                 let data = await response.json()
@@ -143,13 +148,10 @@ function Post(props) {
 
     const showPostOwner = async (event) => {
         event.preventDefault()
-        alert("here")
         if(localStorage.getItem("token") && await checkToken() === true) {
             setShowPostOwnerState(true)
-            setIsLoggedin(true)
             authContext.setLoggedInState(true)
         } else {
-            setIsLoggedin(false)
             authContext.setLoggedInState(false)
         }
     }
@@ -157,10 +159,8 @@ function Post(props) {
     const hidePostOwner = async () => {
         if(localStorage.getItem("token") && await checkToken() === true) {
             setShowPostOwnerState(false)
-            setIsLoggedin(true)
             authContext.setLoggedInState(true)
         } else {
-            setIsLoggedin(false)
             authContext.setLoggedInState(false)
         }
     }
@@ -185,7 +185,6 @@ function Post(props) {
                 throw new Error("Invalid request to delete the post")
             }
         } catch(error) {
-            alert(error.message)
             setErrorState({"errorMessage": error.message})
         }
     }
@@ -215,6 +214,50 @@ function Post(props) {
 
     const addComment = async (event) => {
         event.preventDefault()
+        if(localStorage.getItem("token") && await checkToken() === true) {
+            // setShowAddComment(true)
+            authContext.setLoggedInState(true)
+            let form_data = new FormData();
+            if(doesImageChanged)
+                form_data.append('image', commentImage, commentImage.name);
+            form_data.append('content', commentContent);
+                const token = localStorage.getItem("token")
+                const requestOptions = {
+                    method: 'POST',
+                    headers: {'content-type': 'multipart/form-data', "Authorization": "token " + token},
+                    body: form_data
+                };
+                const url = "http://localhost:8000/posts/" + props.post.id + "/" + "comments/"
+                axios.post(url, form_data, {
+                    headers: {
+                        'content-type': 'multipart/form-data', "Authorization" : "token " + token
+                    }
+                }).then(response => {
+                      console.log(response.data);
+                      if(response.status === 201){
+                        // let data = response.json()
+                    }
+                    else {
+                        throw new Error("Invalid request to update the comment")
+                    }
+                    }).catch(error => {
+                        setErrorState({"errorMessage": error})
+                    });
+
+
+
+                // const url = "http://localhost:8000/posts/" + props.post.id + "/" + "comments/"
+                // const response = await fetch(url, requestOptions)
+                // if (response.status === 201 && response.ok) {
+                //     let data = await response.json()
+                //     props.post = data
+                // } else {
+                //     throw new Error("Invalid request to update the post")
+                //     alert("hi")
+                // }
+        } else {
+            authContext.setLoggedInState(false)
+        }
         // if(localStorage.getItem("token") && await checkToken() === true) {
         //     try {
         //         const token = localStorage.getItem("token")
@@ -236,7 +279,6 @@ function Post(props) {
         //     }
         //     authContext.setLoggedInState(true)
         // } else {
-        //     setIsLoggedin(false)
         //     authContext.setLoggedInState(false)
         // }
     }
@@ -244,10 +286,8 @@ function Post(props) {
     useEffect(async () => {
         if(localStorage.getItem("token") && await checkToken() === true) {
             getUser('http://localhost:8000/users/' + postOwnerId + '/')
-            setIsLoggedin(true)
             authContext.setLoggedInState(true)
         } else {
-            setIsLoggedin(false)
             authContext.setLoggedInState(false)
         }
     }, [commentState])
@@ -256,7 +296,7 @@ function Post(props) {
         <Card className="text-center">
             <Card.Header><h3>Post NO.{props.post.id}</h3></Card.Header>
             <Card.Body>
-            <Card.Title className="d-flex justify-content-center">
+            <Card.Title className="d-flex justify-content-center post-title">
                 <div className="field-container">
                     <label htmlFor="post_title">Title</label>
                     <input type="text" id="post_title" className="postTitle" value={postTitle} placeholder="Enter the title"
@@ -264,13 +304,14 @@ function Post(props) {
                 </div>
                 <div className="field-container">
                     <label htmlFor="post_owner">Written By</label>
-                    <input type="text" id="post_owner" className="postTitle" value={postOwner} placeholder="Enter the owner nme"
-                           required="True" disabled={true}/>
+                    {/*<input type="text" id="post_owner" className="postTitle" value={postOwner} placeholder="Enter the owner nme"*/}
+                    {/*       required="True" disabled={true}/>*/}
+                    <p><a href="" onClick={showPostOwner}>{postOwner.user_name}</a></p>
                 </div>
             </Card.Title>
-            <Card.Title className="d-flex justify-content-center">
-                <div className="field-container">Written By: <a href="" onClick={showPostOwner}>{postOwner.user_name}</a></div>
-            </Card.Title>
+            {/*<Card.Title className="d-flex justify-content-center">*/}
+            {/*    <div className="field-container">Written By: <a href="" onClick={showPostOwner}>{postOwner.user_name}</a></div>*/}
+            {/*</Card.Title>*/}
             <div className="cardText">
                 <div className="field-container">
                     <label htmlFor="post_description"  >Description</label>
@@ -310,6 +351,20 @@ function Post(props) {
     let content =
             <div className="Post">
                 {postCard}
+                {   !props.disabled && showComments &&
+                    <div>
+                        Add New Comment
+                        <div className="field-container">
+                            <label htmlFor="">Content</label>
+                            <input type="text" id="comment_content" value={commentContent} placeholder="Enter the content" required="True" onChange={contentChangeHandler} disabled={false}/>
+                        </div>
+                        <div className="field-container">
+                            <label htmlFor="comment_image" className="showElement">Change Image</label>
+                            <input type="file" id="comment_image" placeholder="Choose an image" required="True" onChange={imageChangeHandler} disabled={false} />
+                        </div>
+                        <Button className="add-post-comments-btn" onClick={addComment}>Add Comment</Button>
+                    </div>
+                }
                 {
                     showPostOwnerState &&
                     <div>
@@ -318,22 +373,25 @@ function Post(props) {
                             <User key={postOwnerId} user={postOwner}/>
                             </Modal.Body>
                             <Modal.Footer>
-                                <Button onClick={hidePostOwner}>Close</Button>
+                                <Button onClick={hidePostOwner} className="BTN">Close</Button>
                             </Modal.Footer>
                         </Modal>
                     </div>
                 }
 
             </div>
-    let error =
-            <div>
-                You need to login to view this page
-            </div>
 
     return (
         <div className="post-page-container">
-            {isLoggedin && content}
-            {!isLoggedin && error}
+            {authContext.loggedInState && content}
+            {
+                !authContext.loggedInState
+                &&
+                <div>
+                    <Error type="Autorization" errorMessage="You are not allowed to be here, you need to login"/>
+                </div>
+
+            }
             {<div className="post-comments">
                 {!showComments
                     && commentState.map( (comment) =>

@@ -22,7 +22,6 @@ class PostDetail(generics.RetrieveUpdateDestroyAPIView):
 
     @action(detail=True, methods=["post"])
     def comments(self, request, pk=None):
-        print("here")
         Comments.views.CommentViewSet.create(self, request, pk)
 
 
@@ -66,7 +65,6 @@ class PostViewSet(viewsets.ModelViewSet):
     def create(self, request): # any authenticated and active user can comment on any valid post (post owner is active)
         Post.create(self, request.user, request.data)
         request.data['owner id'] = request.user.id
-        print("here")
         return Response(request.data, status=status.HTTP_201_CREATED)
     def destroy(self, request, *args, **kwargs):
         try:

@@ -1,13 +1,15 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import logo from '../../logo.svg';
 import '../App.css';
 import Login from "../Login/Login";
 import Error from "../Error"
 import {Button, Modal} from "react-bootstrap";
+import AuthContext from "../../Context/AuthContext";
 
 function Home(props) {
 
-    let content = (props.authorization ?
+    const authContext = useContext(AuthContext)
+    let content =
         <div className="App">
             {props.authorization}
             <div>
@@ -21,15 +23,19 @@ function Home(props) {
                 Learn React
                 </a>
             </div>
-        </div>:
-            <div>
-                <Error type="Autorization" errorMessage="You are not allowed to be here, you need to login"/>
-            </div>
-    )
+        </div>
 
     return (
         <div>
-            {content}
+            {authContext.loggedInState && content}
+            {
+                !authContext.loggedInState
+                &&
+                <div>
+                    <Error type="Autorization" errorMessage="You are not allowed to be here, you need to login"/>
+                </div>
+
+            }
         </div>
     );
 }

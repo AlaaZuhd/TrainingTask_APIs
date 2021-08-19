@@ -1,11 +1,16 @@
 import loginLogo from '../../images/login.png';
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import "../../style.css"
+import AuthContext from "../../Context/AuthContext";
+import Error from "../Error";
+
 
 function Login({history}) {
 
+    const authContext = useContext(AuthContext)
+
     const [state, setState]  =useState({loggedIn:true})
-    const [errorState, setErrorState] = useState({"errorMessage": ""})
+    const [errorState, setErrorState] = useState({"errorMessage": "", "type": ""})
 
     const [userInput, setUserInput] = useState({
         userEmail: "",
@@ -39,14 +44,17 @@ function Login({history}) {
                 const data = await response.json()
                 localStorage.setItem('token', data.token)
                 setState({loggedIn: true})
+                authContext.setLoggedInState(true)
                 history.push("./home")
             }
             else {
-                throw "Email or Password is invalid"
+                throw new Error("Email or Password is invalid")
+                authContext.setLoggedInState(false)
             }
         } catch(error) {
-            console.log(error)
-            setErrorState({"errorMessage": error})
+            console.log(error.message)
+            authContext.setLoggedInState(false)
+            setErrorState({"errorMessage": error.message, "type": error.name})
         }
     }
 
@@ -56,7 +64,7 @@ function Login({history}) {
         setUserInput({userEmail: "", userPassword: ""})
     }
 
-    return (
+    let content = (
         <div className="login-cbase-container">
             <form onSubmit={submitHandler}>
                 <fieldset>
@@ -77,6 +85,23 @@ function Login({history}) {
             </form>
             <p>{errorState.errorMessage}</p>
             <p>If you don't have an account Create one <a href="/register">Create Account</a></p>
+        </div>
+    )
+
+    let error = (
+        <Error type={errorState.type} errorMessage={errorState.errorMessage}/>
+    )
+
+
+    return (
+        <div>
+            {
+                errorState.errorMessage !== "Email or Password is invalid" && content
+            }
+            {
+                errorState.errorMessage !== "" && !errorState.errorMessage === "Email or Password is invalid" && error
+            }
+
         </div>
     )
 }

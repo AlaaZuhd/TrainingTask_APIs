@@ -1,16 +1,17 @@
 import {useEffect, useState, useContext} from 'react';
 import logo from '../../logo.svg';
 import '../App.css';
-import "../../style.css"
 import User from "../Users/User";
 import Post from "../Posts/Post";
 import 'bootstrap/dist/css/bootstrap.css';
 import {Button, Card, Row, Col, Modal} from "react-bootstrap"
 import AuthContext from "../../Context/AuthContext";
+import "../../style.css"
 import "./stylee.css"
 
 import axios from "axios"
 import checkToken from "../CheckToken";
+import Error from "../Error";
 
 function Comment(props) {
 
@@ -34,9 +35,8 @@ function Comment(props) {
     const [commentPost, setCommentPost] = useState("")
     const [showCommentOwnerState, setShowCommentOwnerState] = useState(false)
     const [showCommentPostState, setShowCommentPostState] = useState(false)
-    const [isLoggedin, setIsLoggedin] = useState(props.authorization)
     const [isLoading, setIsLoading] = useState(false)
-
+    const [doesImageChanged, setDoesImageChanged] = useState(false)
     const contentChangeHandler = (event) => {
         event.preventDefault()
         setCommentContent(event.target.value)
@@ -48,6 +48,7 @@ function Comment(props) {
         event.preventDefault()
         setCommentImage(event.target.files[0])
         props.comment.image = event.target.files[0]
+        setDoesImageChanged(true)
     }
 
     const updatedDateChangeHandler = (event) => {
@@ -60,7 +61,8 @@ function Comment(props) {
         event.preventDefault()
         setEditState(false)
         let form_data = new FormData();
-        // form_data.append('image', props.comment.image, props.comment.image.name);
+        if(doesImageChanged)
+            form_data.append('image', props.comment.image, props.comment.image.name);
         form_data.append('content', props.comment.content);
         const url = "http://localhost:8000/comments/" + props.comment.id + "/"
         const token = localStorage.getItem("token")
@@ -70,7 +72,9 @@ function Comment(props) {
                     }
         }).then(response => {
               console.log(response.data);
-              if(response.status === 200 && response.ok){
+
+              if(response.status === 201 && response.ok){
+                  alert("yarab")
                 let data = response.json()
                 date = new Date(data.updated_date)
                 dd = date.getFullYear() + '-' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '-' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate()))
@@ -88,10 +92,8 @@ function Comment(props) {
         event.preventDefault()
         if(localStorage.getItem("token") && await checkToken() === true) {
             setEditState(true)
-            setIsLoggedin(true)
             authContext.setLoggedInState(true)
         } else {
-            setIsLoggedin(false)
             authContext.setLoggedInState(false)
         }
     }
@@ -102,7 +104,6 @@ function Comment(props) {
             setEditState(false)
             authContext.setLoggedInState(true)
         } else {
-            setIsLoggedin(false)
             authContext.setLoggedInState(false)
         }
     }
@@ -125,7 +126,6 @@ function Comment(props) {
                 throw "Invalid request to delete the post"
             }
         } catch(error) {
-            alert(error)
             setErrorState({"errorMessage": error})
         }
         setDeleteState(true)
@@ -168,7 +168,6 @@ function Comment(props) {
                 throw new Error("Invalid request to get the user")
             }
         } catch (error) {
-            alert(error.message)
             setErrorState({"errorMessage": error.message})
         }
     }
@@ -179,7 +178,6 @@ function Comment(props) {
             setShowCommentOwnerState(true)
             authContext.setLoggedInState(true)
         } else {
-            setIsLoggedin(false)
             authContext.setLoggedInState(false)
         }
     }
@@ -189,7 +187,6 @@ function Comment(props) {
             setShowCommentOwnerState(false)
             authContext.setLoggedInState(true)
         } else {
-            setIsLoggedin(false)
             authContext.setLoggedInState(false)
         }
     }
@@ -200,7 +197,6 @@ function Comment(props) {
             setShowCommentPostState(true)
             authContext.setLoggedInState(true)
         } else {
-            setIsLoggedin(false)
             authContext.setLoggedInState(false)
         }
     }
@@ -210,14 +206,12 @@ function Comment(props) {
             setShowCommentPostState(false)
             authContext.setLoggedInState(true)
         } else {
-            setIsLoggedin(false)
             authContext.setLoggedInState(false)
         }
     }
 
     useEffect(async () => {
         if(localStorage.getItem("token") && await checkToken() === true) {
-            setIsLoggedin(true)
             authContext.setLoggedInState(true)
             setCommentOwnerId(props.comment.owner)
             setCommentPostId(props.comment.post)
@@ -227,16 +221,16 @@ function Comment(props) {
             getPost('http://localhost:8000/posts/' + props.comment.post + '/')
         }
         else {
-            setIsLoggedin(false)
             authContext.setLoggedInState(false)
         }
     }, [])
 
     let commentCard = (
         <Card className="text-center">
-            <Card.Img className="cardImage" variant="top" src={props.comment.image} width="100px" />
             <Card.Header>Comment NO.{props.comment.id}</Card.Header>
             <Card.Body>
+                        <Card.Img className="cardImage" variant="top" src={props.comment.image} width="100px" />
+
             <Card.Title className="cardTitle">Written By: <a href="" onClick={showCommentOwner}>{commentOwner.user_name}</a>,
                         <br />
                         On Post: <a href="" onClick={showCommentPost}>{commentPost.title}</a>
@@ -274,7 +268,7 @@ function Comment(props) {
                         <User key={commentOwnerId+commentContent} user={commentOwner}/>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button onClick={hideCommentOwner}>Close</Button>
+                        <Button onClick={hideCommentOwner} className="BTN">Close</Button>
                     </Modal.Footer>
                 </Modal>
             }
@@ -293,21 +287,23 @@ function Comment(props) {
                         />
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button onClick={hideCommentPost}>Close</Button>
+                        <Button onClick={hideCommentPost} className="BTN">Close</Button>
                     </Modal.Footer>
                 </Modal>
             }
         </div>
-    let error =
-        <div>
-            You don't have the permissions to view the comment
-        </div>
-
 
     return (
         <div className="comment-page-container">
-            {!deleteState && isLoggedin && content}
-            {!isLoggedin && error}
+            {!deleteState && authContext.loggedInState && content}
+            {
+                !authContext.loggedInState
+                &&
+                <div>
+                    <Error type="Autorization" errorMessage="You are not allowed to be here, you need to login"/>
+                </div>
+
+            }
         </div>
     );
 }

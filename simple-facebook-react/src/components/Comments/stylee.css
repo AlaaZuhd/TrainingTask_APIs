@@ -12,3 +12,14 @@
 .col {
     height: 100%;
 }
+
+.BTN{
+    border: 4px solid white;
+    float: left;
+    background-color: #19a5a5;
+}
+
+.BTN:hover{
+    border: 4px solid white;
+    background-color: #0a4f4f;
+}

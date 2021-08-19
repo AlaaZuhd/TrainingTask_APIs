@@ -13,6 +13,7 @@ import Posts from "./Posts/Posts"
 import Comments from "./Comments/Comments"
 import Profile from './Users/Profile'
 import AuthContext from "../Context/AuthContext";
+import Error from "./Error";
 
 function Header() {
 
@@ -28,8 +29,8 @@ function Header() {
     }
 
     let welcomeMessage = (log?
-        "Welcome You are logged in":
-        "Welcome you are not logged in"
+        "Welcome, You are logged in":
+        "Welcome, Please login to continue"
     )
 
     return (
@@ -40,14 +41,15 @@ function Header() {
                         {welcomeMessage}
                     </div>
                     <nav className="d-inline-flex mt-2 mt-md-0 ms-md-auto">
-                        <Link className="me-3 py-2 text-dark text-decoration-none"
-                           to="/home">Home</Link>
-                        <Link className="me-3 py-2 text-dark text-decoration-none"
-                           to="/my-profile">My Profile</Link>
-                        <Link className="me-3 py-2 text-dark text-decoration-none"
-                           to="/posts">Posts</Link>
-                        <Link className="me-3 py-2 text-dark text-decoration-none"
-                              to="/my-comments">My Commnets</Link>
+                        {authContext.loggedInState && <Link className="me-3 py-2 text-dark text-decoration-none"
+                                  to="/home">Home</Link>}
+                        {authContext.loggedInState && <Link className="me-3 py-2 text-dark text-decoration-none"
+                            to="/my-profile">My Profile</Link> }
+                        {authContext.loggedInState && <Link className="me-3 py-2 text-dark text-decoration-none"
+                            to="/posts">Posts</Link>}
+                        {authContext.loggedInState && <Link className="me-3 py-2 text-dark text-decoration-none"
+                            to="/my-comments">My Commnets</Link>
+                        }
                         {log && <Link className="me-3 py-2 text-dark text-decoration-none"
                               to="/logout" onClick={logoutPageHandler} >Log out</Link>}
                         {!log && <Link className="me-3 py-2 text-dark text-decoration-none"
@@ -66,7 +68,10 @@ function Header() {
             <Route exact path='/logout' component= {() => <Logout authorization={pageState.isLoggedIn} />} />
             <Route exact path="/register" component={Register} />
 
+
         </Router>
+
+
     )
 }
 

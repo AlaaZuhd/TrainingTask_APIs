@@ -32,6 +32,9 @@ post_router.register('posts', PostViewSet, basename='posts')
 
 comment_router = routers.DefaultRouter()
 comment_router.register('comments', CommentViewSet, basename='comments')
+
+comment_router2 = routers.DefaultRouter()
+comment_router2.register('posts/<int:pk>/comments', CommentViewSet, basename='comments')
 #
 # comment_router2 = routers.DefaultRouter()
 # comment_router2.register('comments/', CommentViewSet, basename='comments')
@@ -44,6 +47,7 @@ urlpatterns = [
     path('', include(post_router.urls)),
     path('', include('Comments.urls')),
     path('', include(comment_router.urls)),
+    path('', include(comment_router2.urls))
     #path('posts/<int:pk>/', include(comment_router.urls))
 
 ]

@@ -13,6 +13,7 @@ import AuthContext from "../../Context/AuthContext";
 import "../../style.css"
 import "./style.css"
 import checkToken from "../CheckToken";
+import Error from "../Error";
 
 
 function User(props) {
@@ -40,7 +41,6 @@ function User(props) {
     const [comment, setComment] = useState("")
     const [post, setPost] = useState("")
     const [modalState, setModalState] = useState({show: false})
-    const [isLoggedin, setIsLoggedin] = useState(true)
     const [editState, setEditState] = useState(false)
     const [deleteState, setDeleteState] = useState(false)
 
@@ -93,9 +93,7 @@ function User(props) {
         if(localStorage.getItem("token") && await checkToken() === true) {
             getComment(event.target.href)
             setShowCommentState(true)
-            setIsLoggedin(true)
         } else {
-            setIsLoggedin(false)
             authContext.setLoggedInState(false)
         }
     }
@@ -109,10 +107,8 @@ function User(props) {
         if(localStorage.getItem("token") && await checkToken() === true) {
             await getPost(event.target.href)
             setShowPostState(true)
-            setIsLoggedin(true)
             authContext.setLoggedInState(true)
         } else {
-            setIsLoggedin(false)
             authContext.setLoggedInState(false)
         }
     }
@@ -125,10 +121,8 @@ function User(props) {
         if(localStorage.getItem("token") !== "" && await checkToken() === true) {
             event.preventDefault()
             setShowChangePasswordState(true)
-            setIsLoggedin(true)
             authContext.setLoggedInState(true)
         } else {
-            setIsLoggedin(false)
             authContext.setLoggedInState(false)
         }
     }
@@ -229,10 +223,8 @@ function User(props) {
         if(localStorage.getItem("token") && await checkToken() === true) {
             setPost(value)
             setModalState({show: true});
-            setIsLoggedin(true)
             authContext.setLoggedInState(true)
         } else {
-            setIsLoggedin(false)
             authContext.setLoggedInState(false)
         }
     }
@@ -240,10 +232,8 @@ function User(props) {
 
     useEffect(async () => {
         if(localStorage.getItem("token") && await checkToken() === true) {
-            setIsLoggedin(true)
             authContext.setLoggedInState(true)
         } else {
-            setIsLoggedin(false)
             authContext.setLoggedInState(false)
         }
     }, [])
@@ -339,7 +329,7 @@ function User(props) {
                         />
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button onClick={hidePost}>Close</Button>
+                        <Button onClick={hidePost} className="BTN">Close</Button>
                     </Modal.Footer>
                 </Modal>
             }
@@ -351,7 +341,7 @@ function User(props) {
                         <Comment key={comment.updated_date} comment={comment} authorization={true} disabled={true}/>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button onClick={hideComment}>Close</Button>
+                        <Button onClick={hideComment} className="BTN">Close</Button>
                     </Modal.Footer>
                 </Modal>
             }
@@ -363,21 +353,23 @@ function User(props) {
                         <ChangePassword />
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button onClick={hideChangePassword}>Close</Button>
+                        <Button onClick={hideChangePassword} className="BTN">Close</Button>
                     </Modal.Footer>
                 </Modal>
             }
         </div>
-    let error =
-        <div>
-            You don't have the permissions to view the user
-        </div>
-
 
     return (
         <div className="user-page-container">
-            {!deleteState && isLoggedin && content}
-            {!deleteState && !isLoggedin && error}
+            {!deleteState && authContext.loggedInState && content}
+            {
+                !authContext.loggedInState
+                &&
+                <div>
+                    <Error type="Autorization" errorMessage="You are not allowed to be here, you need to login"/>
+                </div>
+
+            }
             {deleteState && <Redirect to="./login"/>}
         </div>
     );

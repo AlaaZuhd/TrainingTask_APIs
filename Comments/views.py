@@ -1,14 +1,18 @@
+from django.http import HttpResponse
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics, status, viewsets
+from rest_framework.response import Response
+
+from Posts.models import Post
 from .permissions import IsCommentOwner, IsPostOwner
-from .serializers import CommentSerializer
+from .serializers import CommentSerializer, CreateCommentSerializer
 from .models import Comment
 
 
 class CommentViewSet(viewsets.ModelViewSet):
     #queryset = Comment.objects.filter(owner__is_active= True, post__owner__is_active= True, owner__id= self.request.user.id)
-    serializer_class = CommentSerializer
+    # serializer_class = CommentSerializer
     authentication_classes = [TokenAuthentication]
     #permission_classes = [IsAuthenticated]
     permission_classes = [IsAuthenticated and (IsCommentOwner | IsPostOwner)]
@@ -32,16 +36,54 @@ class CommentViewSet(viewsets.ModelViewSet):
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
 
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return CreateCommentSerializer
+        else:
+            return CommentSerializer
+
     def get_object(self):
         if self.kwargs.get('pk', None) == 'me':
             self.kwargs['pk'] = self.request.user.pk
         return super(CommentViewSet, self).get_object()
 
+    # def update(self, request, *args, **kwargs):
+    #     print(request.data)
+    #     return "Hi"
+
+
     def create(self, request, pk): # any authenticated and active user can comment on any valid post (post owner is active)
+
+        # post = Post.objects.filter(id=pk).first()
+        # owner = request.user
+        # serializer = CommentSerializer(data=request.data)
+        # serializer.is_valid(raise_exception=True)
+        # obj = serializer.save()
+        # obj.owner = owner
+        # obj.post = post
+        # obj.save()
+        # return "Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)"
+        # print(request.POST)
+        # serializer = CommentSerializer(data=request.data)
+        # self.perform_create(self, {'content': request.data.content, 'post': post, 'owner': owner})
+        # request.data.owner = owner
+        # request.data.post = post
+        # super(CommentViewSet, self).create(request)
+        # c = CommentSerializer(data=request.data)
+        # Comment.objects.create(content= request.data.content, post= post, owner=owner)
         Comment.create(self, request.user, pk, request.data)
-        request.data['owner id'] = request.user.id
-        request.data['post_id'] = pk
-        return request.data
+        # request.data['owner id'] = request.user.id
+        # request.data['post_id'] = pk
+        response = {
+            'status': status.HTTP_201_CREATED,
+            'code': status.HTTP_201_CREATED,
+            'message': 'Comment Added Successfully',
+            'data': [],
+            'ok': True
+        }
+        # return HttpResponse(response)
+        # return Response(request.data, status=status.HTTP_201_CREATED)
+        return response
 
 
 

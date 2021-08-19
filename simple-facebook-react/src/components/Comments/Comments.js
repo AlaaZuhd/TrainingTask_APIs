@@ -4,6 +4,7 @@ import "../../style.css"
 import Comment from "./Comment.js"
 import checkToken from "../CheckToken"
 import AuthContext from "../../Context/AuthContext";
+import Error from "../Error";
 
 function Comments(props) {
 
@@ -22,7 +23,6 @@ function Comments(props) {
     const [prevTitle, setPrevTitle] = useState("")
     const [classNamePrevBtn, setClassNamePrevBtn] = useState("prevBtn")
     const [classNameNextBtn, setClassNameNextBtn] = useState("nextBtn")
-    const [isLoggedin, setIsLoggedin] = useState(true)
     let comments = []
 
     useEffect( () => {
@@ -90,10 +90,8 @@ function Comments(props) {
     useEffect(async () => {
         if(localStorage.getItem("token") && await checkToken() === true) {
             getComments('http://127.0.0.1:8000/comments/')
-            setIsLoggedin(true)
             authContext.setLoggedInState(true)
         } else {
-            setIsLoggedin(false)
             authContext.setLoggedInState(false)
         }
     }, []);
@@ -101,10 +99,8 @@ function Comments(props) {
     const getPrevPage = async () => {
         if(prevPage !== null && localStorage.getItem("token") !== '' && await checkToken() === true){
             getComments(prevPage)
-            setIsLoggedin(true)
             authContext.setLoggedInState(true)
         } else {
-            setIsLoggedin(false)
             authContext.setLoggedInState(false)
         }
     }
@@ -112,10 +108,8 @@ function Comments(props) {
     const getNextPage = async () => {
         if(nextPage !== null && localStorage.getItem("token") !== '' && await checkToken() === true){
             getComments(nextPage)
-            setIsLoggedin(true)
             authContext.setLoggedInState(true)
         } else {
-            setIsLoggedin(false)
             authContext.setLoggedInState(false)
         }
     }
@@ -141,12 +135,18 @@ function Comments(props) {
                 </div>
             </ul>
         </div>
-        let error = <div>You need to login to view this page</div>
 
     return (
         <div>
-            {isLoggedin && content}
-            {!isLoggedin && error}
+            {authContext.loggedInState && content}
+            {
+                !authContext.loggedInState
+                &&
+                <div>
+                    <Error type="Autorization" errorMessage="You are not allowed to be here, you need to login"/>
+                </div>
+
+            }
         </div>
     );
 }
